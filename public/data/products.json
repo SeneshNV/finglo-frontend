@@ -1,0 +1,120 @@
+{
+  "responseCode": "00",
+  "responseMessage": "Products retrieved successfully",
+  "responseData": {
+    "content": [
+      {
+        "proId": 1,
+        "proName": "Royal Kanchipuram Silk",
+        "proPrice": 450,
+        "categories": [
+          {
+            "catName": "Silk Collection"
+          }
+        ],
+        "images": [
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1652375186211-805106e54556?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": true
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1760613129745-418b15f91d56?q=80&w=651&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1760613129846-357d4b4ac931?q=80&w=653&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1760613130027-3959a3eb939c?q=80&w=726&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          }
+        ]
+      },
+      {
+        "proId": 1,
+        "proName": "Royal Kanchipuram Silk",
+        "proPrice": 450,
+        "categories": [
+          {
+            "catName": "Silk Collection"
+          }
+        ],
+        "images": [
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1750164875377-8dd60996fc63?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDF8fHxlbnwwfHx8fHw%3D",
+            "isPrimary": true
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1750164874154-1bfa2d31af39?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1750164870293-ee760fd5ba05?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1750164875377-8dd60996fc63?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          }
+        ]
+      },
+      {
+        "proId": 1,
+        "proName": "Royal Kanchipuram Silk",
+        "proPrice": 450,
+        "categories": [
+          {
+            "catName": "Silk Collection"
+          }
+        ],
+        "images": [
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1615886753866-79396abc446e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": true
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1646481648338-3b47fc68022b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1646481648338-3b47fc68022b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1646481648338-3b47fc68022b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          }
+        ]
+      },
+      {
+        "proId": 1,
+        "proName": "Royal Kanchipuram Silk",
+        "proPrice": 450,
+        "categories": [
+          {
+            "catName": "Silk Collection"
+          }
+        ],
+        "images": [
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1770838550265-534760223328?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": true
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1770838447142-fe777b6869d6?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1770838447151-05a876cdee3d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          },
+          {
+            "imageUrl": "https://images.unsplash.com/photo-1770838446951-23c2e61c3d1c?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "isPrimary": false
+          }
+        ]
+      }
+    ]
+  }
+}

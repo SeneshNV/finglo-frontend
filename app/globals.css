@@ -1,0 +1,29 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: business --default, autumn --prefersdark;
+  root: ":root";
+  include: ;
+  exclude: ;
+  prefix: ;
+  logs: true;
+}
+
+@theme {
+  /* Existing Finglo nude palette */
+  --color-nude-dark: #3A2D28;
+  --color-nude-taupe: #A48374;
+  --color-nude-sand: #CBAD8D;
+  --color-nude-greige: #D1C7BD;
+  --color-nude-cream: #EBE3DB;
+  --color-nude-ivory: #F1EDE6;
+
+  /* Luxury accent colors */
+  --color-gold-metallic: #D4AF37;       /* classic luxury gold */
+  --color-rose-gold: #B76E79;           /* soft, elegant metallic */
+  --color-burgundy: #6C1B3B;            /* deep, rich red */
+  --color-emerald: #046307;             /* deep green for elegance */
+  --color-sapphire: #0F52BA;            /* deep blue jewel tone */
+  --color-plum: #5D1451;                /* muted purple luxury */
+  --color-champagne: #F7E7CE;           /* light luxurious beige */
+  --color-pearl: #F2F0EB;               /* subtle luxury highlight */
+}
