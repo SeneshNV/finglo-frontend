@@ -403,6 +403,7 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
     ],
     totalPages: 1,
     number: 0,
+    numberOfElements: 10, // 👈 ADD THIS MISSING FIELD
     totalElements: 10,
     size: 10,
     first: true,
