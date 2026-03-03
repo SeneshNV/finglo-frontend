@@ -1,4 +1,11 @@
-import { ApiResponse, ProductsResponse } from "@/types/product";
+import { ApiResponse, ProductsResponse, Status } from "@/app/types/product";
+
+// Define active status constant
+const ACTIVE_STATUS: Status = {
+  stId: 1,
+  stCode: "ACT",
+  stDescription: "Active",
+};
 
 export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
   responseCode: "00",
@@ -20,10 +27,15 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         categories: [
           {
             catId: 1,
+            catCode: "CAT_SILK",
             catName: "Silk Sarees",
             catDescription: "Pure silk sarees",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-01T10:00:00",
+            updatedAt: "2024-03-01T10:00:00",
           },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "kanchipuram_red_1",
@@ -52,10 +64,15 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         categories: [
           {
             catId: 1,
+            catCode: "CAT_SILK",
             catName: "Silk Sarees",
             catDescription: "Pure silk sarees",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-02T10:00:00",
+            updatedAt: "2024-03-02T10:00:00",
           },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "banarasi_maroon_1",
@@ -84,10 +101,15 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         categories: [
           {
             catId: 2,
+            catCode: "CAT_COTTON",
             catName: "Cotton Sarees",
             catDescription: "Comfortable cotton sarees",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-03T10:00:00",
+            updatedAt: "2024-03-03T10:00:00",
           },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "cotton_blue_1",
@@ -116,15 +138,24 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         categories: [
           {
             catId: 1,
+            catCode: "CAT_SILK",
             catName: "Silk Sarees",
             catDescription: "Pure silk sarees",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-04T10:00:00",
+            updatedAt: "2024-03-04T10:00:00",
           },
           {
             catId: 3,
+            catCode: "CAT_PARTY",
             catName: "Party Wear",
             catDescription: "Sarees for special occasions",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-04T10:00:00",
+            updatedAt: "2024-03-04T10:00:00",
           },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "mysore_green_1",
@@ -153,10 +184,15 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         categories: [
           {
             catId: 4,
+            catCode: "CAT_CHANDERI",
             catName: "Chanderi Sarees",
             catDescription: "Handwoven Chanderi",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-05T10:00:00",
+            updatedAt: "2024-03-05T10:00:00",
           },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "chanderi_ivory_1",
@@ -185,15 +221,24 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         categories: [
           {
             catId: 1,
+            catCode: "CAT_SILK",
             catName: "Silk Sarees",
             catDescription: "Pure silk sarees",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-06T10:00:00",
+            updatedAt: "2024-03-06T10:00:00",
           },
           {
             catId: 5,
+            catCode: "CAT_BRIDAL",
             catName: "Bridal Collection",
             catDescription: "Exclusive bridal sarees",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-06T10:00:00",
+            updatedAt: "2024-03-06T10:00:00",
           },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "paithani_purple_1",
@@ -222,10 +267,15 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         categories: [
           {
             catId: 6,
+            catCode: "CAT_LINEN",
             catName: "Linen Sarees",
             catDescription: "Natural linen",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-07T10:00:00",
+            updatedAt: "2024-03-07T10:00:00",
           },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "linen_beige_1",
@@ -252,8 +302,17 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         proColor: "Orange & Black",
         proPrice: 12500,
         categories: [
-          { catId: 7, catName: "Ikat Sarees", catDescription: "Ikat weave" },
+          {
+            catId: 7,
+            catCode: "CAT_IKAT",
+            catName: "Ikat Sarees",
+            catDescription: "Ikat weave",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-08T10:00:00",
+            updatedAt: "2024-03-08T10:00:00",
+          },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "sambalpuri_orange_1",
@@ -282,10 +341,15 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         categories: [
           {
             catId: 8,
+            catCode: "CAT_DESIGNER",
             catName: "Designer Sarees",
             catDescription: "Designer collection",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-09T10:00:00",
+            updatedAt: "2024-03-09T10:00:00",
           },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "georgette_gold_1",
@@ -312,8 +376,17 @@ export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
         proColor: "White & Red",
         proPrice: 2800,
         categories: [
-          { catId: 9, catName: "Daily Wear", catDescription: "Everyday use" },
+          {
+            catId: 9,
+            catCode: "CAT_DAILY",
+            catName: "Daily Wear",
+            catDescription: "Everyday use",
+            status: ACTIVE_STATUS,
+            createdAt: "2024-03-10T10:00:00",
+            updatedAt: "2024-03-10T10:00:00",
+          },
         ],
+        status: ACTIVE_STATUS,
         images: [
           {
             publicId: "tant_white_1",
