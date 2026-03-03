@@ -41,9 +41,7 @@ export default function Banner() {
 
               <h2 className="text-4xl md:text-7xl font-light tracking-tight text-neutral-100 mb-8 leading-[1.1]">
                 Celebrate{" "}
-                <span className="italic font-serif text-neutral-400">
-                  Sri Lankan
-                </span>{" "}
+                <span className="italic text-neutral-400">Sri Lankan</span>{" "}
                 <br />
                 <span className="font-bold">Saree Heritage</span>
               </h2>

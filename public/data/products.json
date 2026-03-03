@@ -32,7 +32,7 @@
         ]
       },
       {
-        "proId": 1,
+        "proId": 2,
         "proName": "Royal Kanchipuram Silk",
         "proPrice": 450,
         "categories": [
@@ -60,7 +60,7 @@
         ]
       },
       {
-        "proId": 1,
+        "proId": 3,
         "proName": "Royal Kanchipuram Silk",
         "proPrice": 450,
         "categories": [
@@ -88,7 +88,7 @@
         ]
       },
       {
-        "proId": 1,
+        "proId": 4,
         "proName": "Royal Kanchipuram Silk",
         "proPrice": 450,
         "categories": [

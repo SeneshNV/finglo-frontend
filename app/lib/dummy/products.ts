@@ -1,0 +1,348 @@
+import { ApiResponse, ProductsResponse } from "@/types/product";
+
+export const DUMMY_PRODUCTS: ApiResponse<ProductsResponse> = {
+  responseCode: "00",
+  responseMessage: "Products retrieved successfully",
+  responseData: {
+    content: [
+      {
+        proId: 1,
+        proCode: "SAR001",
+        proName: "Traditional Kanchipuram Silk Saree",
+        proDescription:
+          "Beautiful traditional Kanchipuram silk saree with gold zari work. Features intricate temple border and pallu design.",
+        sareeFabricType: "Pure Silk",
+        sareeLengthMeters: 6.5,
+        blouseFabricType: "Silk",
+        blouseLengthMeters: 0.8,
+        proColor: "Red",
+        proPrice: 18500,
+        categories: [
+          {
+            catId: 1,
+            catName: "Silk Sarees",
+            catDescription: "Pure silk sarees",
+          },
+        ],
+        images: [
+          {
+            publicId: "kanchipuram_red_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1654764746164-66b1e3aa04b8?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 15,
+        createdAt: "2024-03-01T10:00:00",
+        updatedAt: "2024-03-01T10:00:00",
+      },
+      {
+        proId: 2,
+        proCode: "SAR002",
+        proName: "Banarasi Handloom Silk Saree",
+        proDescription:
+          "Exquisite Banarasi silk saree with intricate brocade weaving and mughal motifs.",
+        sareeFabricType: "Banarasi Silk",
+        sareeLengthMeters: 6.5,
+        blouseFabricType: "Silk",
+        blouseLengthMeters: 0.8,
+        proColor: "Maroon",
+        proPrice: 22500,
+        categories: [
+          {
+            catId: 1,
+            catName: "Silk Sarees",
+            catDescription: "Pure silk sarees",
+          },
+        ],
+        images: [
+          {
+            publicId: "banarasi_maroon_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1750008564980-46ad2279cd89?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 8,
+        createdAt: "2024-03-02T10:00:00",
+        updatedAt: "2024-03-02T10:00:00",
+      },
+      {
+        proId: 3,
+        proCode: "SAR003",
+        proName: "Hand-Printed Floral Cotton Saree",
+        proDescription:
+          "Lightweight and breathable cotton saree with vibrant floral block prints.",
+        sareeFabricType: "Cotton",
+        sareeLengthMeters: 6.0,
+        blouseFabricType: "Cotton",
+        blouseLengthMeters: 0.8,
+        proColor: "Blue",
+        proPrice: 3500,
+        categories: [
+          {
+            catId: 2,
+            catName: "Cotton Sarees",
+            catDescription: "Comfortable cotton sarees",
+          },
+        ],
+        images: [
+          {
+            publicId: "cotton_blue_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1705164456205-69d775ce1482?q=80&w=741&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 25,
+        createdAt: "2024-03-03T10:00:00",
+        updatedAt: "2024-03-03T10:00:00",
+      },
+      {
+        proId: 4,
+        proCode: "SAR004",
+        proName: "Mysore Crepe Silk Saree",
+        proDescription:
+          "Elegant Mysore crepe silk saree with a subtle sheen and smooth texture.",
+        sareeFabricType: "Crepe Silk",
+        sareeLengthMeters: 6.2,
+        blouseFabricType: "Crepe Silk",
+        blouseLengthMeters: 0.8,
+        proColor: "Peacock Green",
+        proPrice: 9800,
+        categories: [
+          {
+            catId: 1,
+            catName: "Silk Sarees",
+            catDescription: "Pure silk sarees",
+          },
+          {
+            catId: 3,
+            catName: "Party Wear",
+            catDescription: "Sarees for special occasions",
+          },
+        ],
+        images: [
+          {
+            publicId: "mysore_green_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1705164454907-a04fe248f675?q=80&w=792&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 12,
+        createdAt: "2024-03-04T10:00:00",
+        updatedAt: "2024-03-04T10:00:00",
+      },
+      {
+        proId: 5,
+        proCode: "SAR005",
+        proName: "Ivory Chanderi Silk Cotton",
+        proDescription:
+          "Traditional Chanderi saree woven from a blend of silk and cotton threads.",
+        sareeFabricType: "Silk Cotton",
+        sareeLengthMeters: 6.3,
+        blouseFabricType: "Cotton",
+        blouseLengthMeters: 0.8,
+        proColor: "Ivory",
+        proPrice: 7200,
+        categories: [
+          {
+            catId: 4,
+            catName: "Chanderi Sarees",
+            catDescription: "Handwoven Chanderi",
+          },
+        ],
+        images: [
+          {
+            publicId: "chanderi_ivory_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1770748147858-a7c2eb8012ea?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 18,
+        createdAt: "2024-03-05T10:00:00",
+        updatedAt: "2024-03-05T10:00:00",
+      },
+      {
+        proId: 6,
+        proCode: "SAR006",
+        proName: "Royal Paithani Silk Saree",
+        proDescription:
+          "Royal Paithani silk saree with distinctive peacock motifs woven using pure gold zari.",
+        sareeFabricType: "Pure Silk",
+        sareeLengthMeters: 6.5,
+        blouseFabricType: "Silk",
+        blouseLengthMeters: 0.8,
+        proColor: "Purple",
+        proPrice: 35000,
+        categories: [
+          {
+            catId: 1,
+            catName: "Silk Sarees",
+            catDescription: "Pure silk sarees",
+          },
+          {
+            catId: 5,
+            catName: "Bridal Collection",
+            catDescription: "Exclusive bridal sarees",
+          },
+        ],
+        images: [
+          {
+            publicId: "paithani_purple_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1693336429370-db3ee173ce51?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 5,
+        createdAt: "2024-03-06T10:00:00",
+        updatedAt: "2024-03-06T10:00:00",
+      },
+      {
+        proId: 7,
+        proCode: "SAR007",
+        proName: "Beige Linen Handloom Saree",
+        proDescription:
+          "Eco-friendly pure linen handloom saree with natural texture and earthy tones.",
+        sareeFabricType: "Pure Linen",
+        sareeLengthMeters: 6.0,
+        blouseFabricType: "Linen",
+        blouseLengthMeters: 0.8,
+        proColor: "Beige",
+        proPrice: 5500,
+        categories: [
+          {
+            catId: 6,
+            catName: "Linen Sarees",
+            catDescription: "Natural linen",
+          },
+        ],
+        images: [
+          {
+            publicId: "linen_beige_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1726076576112-b9fee4c8d9b4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 30,
+        createdAt: "2024-03-07T10:00:00",
+        updatedAt: "2024-03-07T10:00:00",
+      },
+      {
+        proId: 8,
+        proCode: "SAR008",
+        proName: "Sambalpuri Ikat Silk",
+        proDescription:
+          "Authentic Sambalpuri ikat silk saree from Odisha, featuring traditional bandha patterns.",
+        sareeFabricType: "Ikat Silk",
+        sareeLengthMeters: 6.5,
+        blouseFabricType: "Silk",
+        blouseLengthMeters: 0.8,
+        proColor: "Orange & Black",
+        proPrice: 12500,
+        categories: [
+          { catId: 7, catName: "Ikat Sarees", catDescription: "Ikat weave" },
+        ],
+        images: [
+          {
+            publicId: "sambalpuri_orange_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1723547811074-d2dae2a1f2cd?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 10,
+        createdAt: "2024-03-08T10:00:00",
+        updatedAt: "2024-03-08T10:00:00",
+      },
+      {
+        proId: 9,
+        proCode: "SAR009",
+        proName: "Golden Designer Georgette",
+        proDescription:
+          "Stunning designer georgette saree with heavy embroidery and sequin work.",
+        sareeFabricType: "Georgette",
+        sareeLengthMeters: 5.5,
+        blouseFabricType: "Net",
+        blouseLengthMeters: 0.8,
+        proColor: "Gold",
+        proPrice: 16000,
+        categories: [
+          {
+            catId: 8,
+            catName: "Designer Sarees",
+            catDescription: "Designer collection",
+          },
+        ],
+        images: [
+          {
+            publicId: "georgette_gold_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1710967357814-0d54e4cedd28?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 20,
+        createdAt: "2024-03-09T10:00:00",
+        updatedAt: "2024-03-09T10:00:00",
+      },
+      {
+        proId: 10,
+        proCode: "SAR010",
+        proName: "Traditional Bengali Tant Cotton",
+        proDescription:
+          "Fine cotton threads woven on traditional looms in Shantipur with jamdani border.",
+        sareeFabricType: "Cotton",
+        sareeLengthMeters: 6.0,
+        blouseFabricType: "Cotton",
+        blouseLengthMeters: 0.8,
+        proColor: "White & Red",
+        proPrice: 2800,
+        categories: [
+          { catId: 9, catName: "Daily Wear", catDescription: "Everyday use" },
+        ],
+        images: [
+          {
+            publicId: "tant_white_1",
+            imageUrl:
+              "https://images.unsplash.com/photo-1758119461027-44f323ed6b4c?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayOrder: 0,
+            isPrimary: true,
+          },
+        ],
+        availableStock: 40,
+        createdAt: "2024-03-10T10:00:00",
+        updatedAt: "2024-03-10T10:00:00",
+      },
+    ],
+    totalPages: 1,
+    number: 0,
+    totalElements: 10,
+    size: 10,
+    first: true,
+    last: true,
+    empty: false,
+    pageable: {
+      offset: 0,
+      pageNumber: 0,
+      pageSize: 10,
+      paged: true,
+      sort: [],
+      unpaged: false,
+    },
+    sort: [],
+  },
+};
