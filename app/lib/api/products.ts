@@ -12,33 +12,32 @@ export const productApi = {
   getProducts: async (filters?: ProductFilters) => {
     try {
       // For development: return dummy data
-      if (process.env.NODE_ENV === "development") {
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        return DUMMY_PRODUCTS as ApiResponse<ProductsResponse>;
-      }
 
-      // For production: call actual API
-      const params = new URLSearchParams();
+      // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return DUMMY_PRODUCTS as ApiResponse<ProductsResponse>;
 
-      if (filters?.page !== undefined)
-        params.append("page", filters.page.toString());
-      if (filters?.size !== undefined)
-        params.append("size", filters.size.toString());
-      if (filters?.sort) params.append("sort", filters.sort);
-      if (filters?.category) params.append("category", filters.category);
-      if (filters?.color) params.append("color", filters.color);
-      if (filters?.minPrice)
-        params.append("minPrice", filters.minPrice.toString());
-      if (filters?.maxPrice)
-        params.append("maxPrice", filters.maxPrice.toString());
-      if (filters?.search) params.append("search", filters.search);
+      // // For production: call actual API
+      // const params = new URLSearchParams();
 
-      const response = await apiClient.get<ApiResponse<ProductsResponse>>(
-        "/products",
-        { params },
-      );
-      return response.data;
+      // if (filters?.page !== undefined)
+      //   params.append("page", filters.page.toString());
+      // if (filters?.size !== undefined)
+      //   params.append("size", filters.size.toString());
+      // if (filters?.sort) params.append("sort", filters.sort);
+      // if (filters?.category) params.append("category", filters.category);
+      // if (filters?.color) params.append("color", filters.color);
+      // if (filters?.minPrice)
+      //   params.append("minPrice", filters.minPrice.toString());
+      // if (filters?.maxPrice)
+      //   params.append("maxPrice", filters.maxPrice.toString());
+      // if (filters?.search) params.append("search", filters.search);
+
+      // // const response = await apiClient.get<ApiResponse<ProductsResponse>>(
+      // //   "/products",
+      // //   { params },
+      // // );
+      // // return response.data;
     } catch (error) {
       console.error("Error fetching products:", error);
       throw error;
