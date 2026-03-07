@@ -164,7 +164,7 @@ export default function ProductDetailsClient({
           <div className="lg:col-span-7">
             <div className="flex flex-col-reverse md:flex-row gap-4">
               {/* THUMBNAILS - Hidden on mobile, visible on desktop */}
-              <div className="hidden md:flex md:flex-col gap-3 overflow-x-auto max-h-[600px]">
+              <div className="flex md:flex-col gap-3 overflow-x-auto max-h-[600px]">
                 {images.map((img, idx) => (
                   <button
                     key={idx}
