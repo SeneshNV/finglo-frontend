@@ -1,21 +1,16 @@
-import { Suspense } from "react";
-import { Metadata } from "next";
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import ProductsLoading from "./loading";
-import ProductsContent from "./components/ProductsContent";
 
-export const metadata: Metadata = {
-  title: "The Saree Atelier | Finglo Heritage",
-  description:
-    "Disciplined curation of heritage textiles and structural silhouettes.",
-};
+export default function GalleryHeader() {
+  const [filter, setFilter] = useState<"all" | "feedback" | "designs">("all");
 
-export default function ProductsPage() {
   return (
-    <div className="min-h-screen bg-white text-neutral-900 antialiased selection:bg-neutral-950 selection:text-white">
+    <div className="bg-white shadow-sm">
       {/* EDITORIAL HERO SECTION 
-        Large-scale branding with thin geometric lines
-      */}
+              Large-scale branding with thin geometric lines
+            */}
       <header className="relative border-b border-neutral-100 overflow-hidden bg-[#FAFAFA]">
         <div className="container mx-auto px-6 py-12 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -42,8 +37,8 @@ export default function ProductsPage() {
         </div>
 
         {/* BRAND MARK WATERMARK
-          Large, subtle icon logo used as a design element
-        */}
+                Large, subtle icon logo used as a design element
+              */}
         <div className="absolute top-1/2 -right-12 -translate-y-1/2 opacity-[0.2] grayscale pointer-events-none hidden lg:block">
           <Image
             src="/logo/iconLogo.png"
@@ -54,17 +49,6 @@ export default function ProductsPage() {
           />
         </div>
       </header>
-
-      {/* PRODUCT GRID 
-        Clean, high-density focus
-      */}
-      <main className="container mx-auto px-6 py-6">
-        <div className="pb-32">
-          <Suspense fallback={<ProductsLoading />}>
-            <ProductsContent />
-          </Suspense>
-        </div>
-      </main>
     </div>
   );
 }
