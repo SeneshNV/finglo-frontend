@@ -1,36 +1,38 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: business --default, autumn --prefersdark;
+  themes:
+    business --default,
+    autumn --prefersdark;
   root: ":root";
-  include: ;
-  exclude: ;
-  prefix: ;
+  include:;
+  exclude:;
+  prefix:;
   logs: true;
 }
 
 @theme {
   /* Existing Finglo nude palette */
-  --color-nude-dark: #3A2D28;
-  --color-nude-taupe: #A48374;
-  --color-nude-sand: #CBAD8D;
-  --color-nude-greige: #D1C7BD;
-  --color-nude-cream: #EBE3DB;
-  --color-nude-ivory: #F1EDE6;
+  --color-nude-dark: #3a2d28;
+  --color-nude-taupe: #a48374;
+  --color-nude-sand: #cbad8d;
+  --color-nude-greige: #d1c7bd;
+  --color-nude-cream: #ebe3db;
+  --color-nude-ivory: #f1ede6;
 
   /* Luxury accent colors */
-  --color-gold-metallic: #D4AF37;       /* classic luxury gold */
-  --color-rose-gold: #B76E79;           /* soft, elegant metallic */
-  --color-burgundy: #6C1B3B;            /* deep, rich red */
-  --color-emerald: #046307;             /* deep green for elegance */
-  --color-sapphire: #0F52BA;            /* deep blue jewel tone */
-  --color-plum: #5D1451;                /* muted purple luxury */
-  --color-champagne: #F7E7CE;           /* light luxurious beige */
-  --color-pearl: #F2F0EB;               /* subtle luxury highlight */
+  --color-gold-metallic: #d4af37; /* classic luxury gold */
+  --color-rose-gold: #b76e79; /* soft, elegant metallic */
+  --color-burgundy: #6c1b3b; /* deep, rich red */
+  --color-emerald: #046307; /* deep green for elegance */
+  --color-sapphire: #0f52ba; /* deep blue jewel tone */
+  --color-plum: #5d1451; /* muted purple luxury */
+  --color-champagne: #f7e7ce; /* light luxurious beige */
+  --color-pearl: #f2f0eb; /* subtle luxury highlight */
 }
 
-@import 'swiper/css';
-@import 'swiper/css/pagination';
-@import 'swiper/css/navigation';
+@import "swiper/css";
+@import "swiper/css/pagination";
+@import "swiper/css/navigation";
 
 .testimonial-swiper .swiper-pagination-bullet {
   @apply bg-primary rounded-none transition-all duration-300;
