@@ -27,3 +27,11 @@
   --color-champagne: #F7E7CE;           /* light luxurious beige */
   --color-pearl: #F2F0EB;               /* subtle luxury highlight */
 }
+
+@import 'swiper/css';
+@import 'swiper/css/pagination';
+@import 'swiper/css/navigation';
+
+.testimonial-swiper .swiper-pagination-bullet {
+  @apply bg-primary rounded-none transition-all duration-300;
+}
