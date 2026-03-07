@@ -5,7 +5,7 @@ import { AboutMission } from "./components/AboutMission";
 import { AboutJourney } from "./components/AboutJourney";
 import { AboutStats } from "./components/AboutStats";
 import { AboutTestimonials } from "./components/AboutTestimonials";
-import GalleryHeader from "./components/GalleryHeader";
+import AboutHeader from "./components/AboutHeader";
 import Loading from "../components/shared/Loading";
 import { CTATiny } from "./components/CTA";
 
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <GalleryHeader />
+      <AboutHeader />
 
       <div className="container mx-auto px-4 ">
         <Suspense fallback={<Loading />}>

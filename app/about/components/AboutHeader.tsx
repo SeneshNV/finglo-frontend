@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 
-export default function GalleryHeader() {
+export default function AboutHeader() {
   const [filter, setFilter] = useState<"all" | "feedback" | "designs">("all");
 
   return (
