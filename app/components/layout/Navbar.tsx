@@ -8,6 +8,7 @@ import { ShoppingCart, Menu } from "lucide-react";
 
 const NAV_LINKS = [
   { name: "Shop", href: "/shop/products" },
+  { name: "Category", href: "/category" },
   { name: "About", href: "/about" },
   { name: "Gallery", href: "/gallery" },
   { name: "Contact", href: "/contact" },
@@ -21,10 +22,17 @@ export default function Navbar() {
       {/* LEFT SIDE: Responsive Logo & Mobile Menu */}
       <div className="navbar-start gap-4">
         <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden p-2">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-ghost lg:hidden p-2"
+          >
             <Menu className="h-5 w-5" />
           </div>
-          <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-xl z-[1] mt-3 w-52 p-4 shadow-xl border border-base-200 uppercase tracking-widest">
+          <ul
+            tabIndex={0}
+            className="menu menu-lg dropdown-content bg-base-100 rounded-xl z-[1] mt-3 w-52 p-4 shadow-xl border border-base-200 uppercase tracking-widest"
+          >
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
                 <Link href={link.href}>{link.name.toUpperCase()}</Link>
@@ -34,13 +42,16 @@ export default function Navbar() {
         </div>
 
         {/* LOGO SECTION */}
-        <Link href="/" className="hover:opacity-80 transition-opacity flex items-center">
+        <Link
+          href="/"
+          className="hover:opacity-80 transition-opacity flex items-center"
+        >
           {/* MOBILE: Icon Logo (Visible on small screens, hidden on LG) */}
           <div className="lg:hidden block">
-            <Image 
-              src="/logo/iconLogo.png" // Change to your actual icon filename
+            <Image
+              src="/logo/darkLogo.png" // Change to your actual icon filename
               alt="Finglo Icon"
-              width={35}
+              width={125}
               height={35}
               priority // High priority for LCP
             />
@@ -48,7 +59,7 @@ export default function Navbar() {
 
           {/* DESKTOP: Full Logo (Hidden on mobile, visible on LG) */}
           <div className="hidden lg:block">
-            <Image 
+            <Image
               src="/logo/darkLogo.png" // Change to your actual full logo filename
               alt="Finglo Full Logo"
               width={140}
@@ -61,25 +72,27 @@ export default function Navbar() {
 
       {/* CENTER: Premium Underline Menu */}
       <div className="navbar-center hidden lg:flex">
-        <ul 
-          className="flex items-center gap-2 font-medium" 
+        <ul
+          className="flex items-center gap-2 font-medium"
           onMouseLeave={() => setHoveredIndex(null)}
         >
           {NAV_LINKS.map((link, index) => (
-            <li 
-              key={link.href} 
+            <li
+              key={link.href}
               className="relative"
               onMouseEnter={() => setHoveredIndex(index)}
             >
               <Link
                 href={link.href}
                 className={`relative z-10 px-8 py-2 block text-[13px] uppercase tracking-[0.2em] transition-colors duration-500 ${
-                  hoveredIndex === index ? "text-primary" : "text-base-content/60"
+                  hoveredIndex === index
+                    ? "text-primary"
+                    : "text-base-content/60"
                 }`}
               >
                 {link.name.toUpperCase()}
               </Link>
-              
+
               {/* Premium Underline Slide */}
               {hoveredIndex === index && (
                 <motion.span
@@ -102,8 +115,8 @@ export default function Navbar() {
 
       {/* RIGHT SIDE: Cart */}
       <div className="navbar-end gap-3">
-        <Link 
-          href="/cart" 
+        <Link
+          href="/cart"
           className="btn btn-ghost btn-circle hover:bg-primary/10 transition-colors relative"
         >
           <div className="indicator">
