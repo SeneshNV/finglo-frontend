@@ -1,7 +1,84 @@
-import React from "react";
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import { productApi } from "@/app/lib/api/products";
+import ProductDetailsClient from "./ProductDetailsClient";
 
-const page = () => {
-  return <div>page</div>;
-};
+interface ProductPageProps {
+  params: Promise<{ slug: string }>;
+}
 
-export default page;
+export async function generateMetadata({
+  params,
+}: ProductPageProps): Promise<Metadata> {
+  try {
+    const { slug } = await params;
+    const productId = parseInt(slug, 10);
+
+    if (isNaN(productId)) {
+      return {
+        title: "Product Details | Finglo Sarees",
+        description: "View product details",
+      };
+    }
+
+    // Log before API call
+    console.log("📝 Metadata - Fetching product ID:", productId);
+
+    const response = await productApi.getProductById(productId);
+
+    console.log("📝 Metadata - API Response:", response);
+
+    if (response.responseCode !== "00" || !response.responseData) {
+      return {
+        title: "Product Not Found | Finglo Sarees",
+        description: "The requested product could not be found.",
+      };
+    }
+
+    const product = response.responseData;
+
+    return {
+      title: `${product.proName} — Finglo Sarees`,
+      description:
+        product.proDescription?.slice(0, 160) || "Luxury handcrafted saree",
+    };
+  } catch (error) {
+    console.error("📝 Metadata - Error:", error);
+    return {
+      title: "Error | Finglo Sarees",
+      description: "An error occurred while loading the product.",
+    };
+  }
+}
+
+export default async function ProductPage({ params }: ProductPageProps) {
+  try {
+    const { slug } = await params;
+    console.log("🔄 Page - Slug received:", slug);
+
+    const productId = parseInt(slug, 10);
+    console.log("🔄 Page - Product ID parsed:", productId);
+
+    if (isNaN(productId)) {
+      console.log("🔄 Page - Invalid product ID");
+      notFound();
+    }
+
+    console.log("🔄 Page - Calling API for product:", productId);
+    const response = await productApi.getProductById(productId);
+
+    console.log("🔄 Page - API Response Code:", response.responseCode);
+    console.log("🔄 Page - API Response Data:", response.responseData);
+
+    if (response.responseCode !== "00" || !response.responseData) {
+      console.log("🔄 Page - Product not found in API");
+      notFound();
+    }
+
+    console.log("🔄 Page - Product found, rendering client component");
+    return <ProductDetailsClient product={response.responseData} />;
+  } catch (err) {
+    console.error("🔄 Page - Error loading product:", err);
+    notFound();
+  }
+}
