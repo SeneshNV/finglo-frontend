@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -15,6 +16,7 @@ export default function ProductCard({
   product,
   priority = false,
 }: ProductCardProps) {
+  const router = useRouter();
   const primaryImage =
     product.images?.find((img) => img.isPrimary) || product.images?.[0];
   const isOutOfStock = product.availableStock === 0;
@@ -52,14 +54,21 @@ export default function ProductCard({
         {!isOutOfStock && (
           <div className="absolute inset-x-0 bottom-0 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
             <div className="flex divide-x divide-white/20">
-              <Link
-                href={`/shop/products/${product.proId}`}
+              {/* ✅ Changed from Link to button to avoid nested <a> tags */}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(`/shop/products/${product.proId}`);
+                }}
                 className="flex-1 bg-primary-600/90 backdrop-blur-sm text-white py-3 text-sm font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
               >
                 <FileHeart className="w-4 h-4" />
                 View
-              </Link>
-              <button className="flex-1 bg-primary-600/90 backdrop-blur-sm text-white py-3 text-sm font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2">
+              </button>
+              <button
+                onClick={(e) => e.preventDefault()}
+                className="flex-1 bg-primary-600/90 backdrop-blur-sm text-white py-3 text-sm font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
+              >
                 <ShoppingBag className="w-4 h-4" />
                 Add
               </button>
@@ -68,7 +77,10 @@ export default function ProductCard({
         )}
 
         {/* Wishlist Button */}
-        <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={(e) => e.preventDefault()}
+          className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        >
           <Heart className="w-4 h-4 text-neutral-700" />
         </button>
 
