@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { Product } from "@/app/types/product";
+import PayHereCheckout from "../components/PayHereCheckout";
 
 export default function ProductDetailsClient({
   product,
@@ -150,7 +151,7 @@ export default function ProductDetailsClient({
             Home
           </Link>
           <ChevronRight size={12} />
-          <Link href="/shop" className="hover:text-black">
+          <Link href="/shop/products" className="hover:text-black">
             Collection
           </Link>
           <ChevronRight size={12} />
@@ -369,10 +370,7 @@ export default function ProductDetailsClient({
                 </button>
               </div>
 
-              <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-12 md:h-14 rounded-xl font-semibold text-xs md:text-sm tracking-[0.15em] flex items-center justify-center gap-2">
-                <ShieldCheck size={16} />
-                SECURE CHECKOUT
-              </button>
+              <PayHereCheckout product={product} quantity={quantity} />
             </div>
 
             {/* TRUST BADGES */}
