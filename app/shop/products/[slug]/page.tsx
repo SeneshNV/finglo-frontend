@@ -21,12 +21,7 @@ export async function generateMetadata({
       };
     }
 
-    // Log before API call
-    console.log("📝 Metadata - Fetching product ID:", productId);
-
     const response = await productApi.getProductById(productId);
-
-    console.log("📝 Metadata - API Response:", response);
 
     if (response.responseCode !== "00" || !response.responseData) {
       return {
@@ -37,13 +32,48 @@ export async function generateMetadata({
 
     const product = response.responseData;
 
+    const image =
+      product.images?.find((img) => img.isPrimary)?.imageUrl ||
+      product.images?.[0]?.imageUrl;
+
+    const url = `https://finglo-frontend.vercel.app/shop/products/${productId}`;
+
     return {
       title: `${product.proName} — Finglo Sarees`,
       description:
-        product.proDescription?.slice(0, 160) || "Luxury handcrafted saree",
+        product.proDescription?.slice(0, 160) ||
+        "Luxury handcrafted saree from Finglo Sarees",
+
+      alternates: {
+        canonical: url,
+      },
+
+      openGraph: {
+        title: `${product.proName} — Finglo Sarees`,
+        description:
+          product.proDescription?.slice(0, 160) || "Luxury handcrafted saree",
+        url,
+        siteName: "Finglo Sarees",
+        images: [
+          {
+            url: image,
+            width: 1200,
+            height: 630,
+            alt: product.proName,
+          },
+        ],
+        type: "website",
+      },
+
+      twitter: {
+        card: "summary_large_image",
+        title: `${product.proName} — Finglo Sarees`,
+        description:
+          product.proDescription?.slice(0, 160) || "Luxury handcrafted saree",
+        images: [image],
+      },
     };
   } catch (error) {
-    console.error("📝 Metadata - Error:", error);
     return {
       title: "Error | Finglo Sarees",
       description: "An error occurred while loading the product.",
