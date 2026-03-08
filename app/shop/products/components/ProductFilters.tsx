@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import type { ProductFilters as FilterTypes } from "@/app/types/product";
+import { useState, useEffect } from "react";
+import type {
+  ProductFilters as FilterTypes,
+  Category,
+} from "@/app/types/product";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { getActiveCategories } from "@/app/lib/api/categories";
 
 interface ProductFiltersProps {
   filters: FilterTypes;
@@ -10,25 +14,6 @@ interface ProductFiltersProps {
   onClear: () => void;
   isMobile?: boolean;
 }
-
-// Dummy data for development
-const DUMMY_CATEGORIES = [
-  { id: 1, name: "Silk Sarees", count: 45 },
-  { id: 2, name: "Cotton Sarees", count: 38 },
-  { id: 3, name: "Bridal Collection", count: 22 },
-  { id: 4, name: "Party Wear", count: 31 },
-  { id: 5, name: "Daily Wear", count: 54 },
-  { id: 6, name: "Designer Sarees", count: 27 },
-];
-
-const DUMMY_FABRICS = [
-  { name: "Pure Silk", count: 42 },
-  { name: "Cotton Silk", count: 28 },
-  { name: "Banarasi", count: 19 },
-  { name: "Kanchipuram", count: 23 },
-  { name: "Chiffon", count: 31 },
-  { name: "Georgette", count: 35 },
-];
 
 const PRICE_RANGES = [
   { label: "Under LKR2,500", min: 0, max: 2500 },
@@ -75,12 +60,37 @@ export default function ProductFilters({
   onClear,
   isMobile = false,
 }: ProductFiltersProps) {
-  const checkboxSize = isMobile ? "w-5 h-5" : "w-4 h-4";
-
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState<{ min?: number; max?: number }>({
     min: filters.minPrice,
     max: filters.maxPrice,
   });
+
+  // Fetch real categories from backend with the correct format
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        // Fetch categories sorted by name
+        const response = await getActiveCategories(0, 100, "catName", "asc");
+
+        // Sort categories by name (in case backend doesn't sort)
+        const sortedCategories = response.responseData.content.sort((a, b) =>
+          a.catName.localeCompare(b.catName),
+        );
+
+        setCategories(sortedCategories);
+        console.log("✅ Categories loaded:", sortedCategories);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handlePriceChange = (min?: number, max?: number) => {
     setPriceRange({ min, max });
@@ -92,12 +102,9 @@ export default function ProductFilters({
     handlePriceChange(range.min, range.max || undefined);
   };
 
-  const handleCategoryChange = (categoryName: string) => {
-    onFilterChange("category", categoryName);
-  };
-
-  const handleColorChange = (color: string) => {
-    onFilterChange("color", color);
+  const handleCategoryChange = (categoryId: number) => {
+    // Store category ID as string
+    onFilterChange("category", categoryId.toString());
   };
 
   const activeFilterCount = [
@@ -123,33 +130,61 @@ export default function ProductFilters({
         )}
       </div>
 
-      {/* Categories */}
+      {/* Availability */}
+      <FilterSection title="Availability" defaultOpen={false}>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={filters.inStock || false}
+            onChange={(e) =>
+              onFilterChange("inStock", e.target.checked || undefined)
+            }
+            className="w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500"
+          />
+          <span className="text-sm text-neutral-700">In Stock Only</span>
+        </label>
+      </FilterSection>
+
+      {/* Categories - Real data from backend */}
       <FilterSection title="Categories">
-        <div className="space-y-2">
-          {DUMMY_CATEGORIES.map((category) => (
-            <label
-              key={category.id}
-              className="flex items-center justify-between cursor-pointer group"
-            >
-              <div className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="category"
-                  value={category.name}
-                  checked={filters.category === category.name}
-                  onChange={() => handleCategoryChange(category.name)}
-                  className="w-4 h-4 text-primary-600 border-neutral-300 focus:ring-primary-500"
-                />
-                <span className="text-sm text-neutral-700 group-hover:text-primary-600">
-                  {category.name}
+        {loading ? (
+          <div className="text-sm text-neutral-500 animate-pulse">
+            Loading categories...
+          </div>
+        ) : (
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+            {categories.map((category) => (
+              <label
+                key={category.catId}
+                className="flex items-center justify-between cursor-pointer group"
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="category"
+                    value={category.catId}
+                    checked={filters.category === category.catId.toString()}
+                    onChange={() => handleCategoryChange(category.catId)}
+                    className="w-4 h-4 text-primary-600 border-neutral-300 focus:ring-primary-500"
+                  />
+                  <span className="text-sm text-neutral-700 group-hover:text-primary-600">
+                    {category.catName}
+                  </span>
+                </div>
+
+                {/* SHOW PRODUCT COUNT */}
+                <span className="text-xs text-neutral-400">
+                  ({category.productCount})
                 </span>
+              </label>
+            ))}
+            {categories.length === 0 && (
+              <div className="text-sm text-neutral-500">
+                No categories found
               </div>
-              <span className="text-xs text-neutral-400">
-                ({category.count})
-              </span>
-            </label>
-          ))}
-        </div>
+            )}
+          </div>
+        )}
       </FilterSection>
 
       {/* Price Range */}
@@ -170,38 +205,6 @@ export default function ProductFilters({
             </button>
           ))}
         </div>
-      </FilterSection>
-
-      {/* Fabric Type */}
-      <FilterSection title="Fabric">
-        <div className="space-y-2">
-          {DUMMY_FABRICS.map((fabric) => (
-            <label
-              key={fabric.name}
-              className="flex items-center justify-between cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500"
-                />
-                <span className="text-sm text-neutral-700">{fabric.name}</span>
-              </div>
-              <span className="text-xs text-neutral-400">({fabric.count})</span>
-            </label>
-          ))}
-        </div>
-      </FilterSection>
-
-      {/* Availability */}
-      <FilterSection title="Availability" defaultOpen={false}>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            className="w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500"
-          />
-          <span className="text-sm text-neutral-700">In Stock Only</span>
-        </label>
       </FilterSection>
     </div>
   );

@@ -1,3 +1,24 @@
+// src/app/types/product.ts
+
+export interface ProductFilters {
+  page?: number;
+  size?: number;
+  sort?: string; // 'newest', 'price-low', 'price-high', 'popular', 'rating'
+  category?: string;
+  color?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  search?: string;
+  inStock?: boolean;
+}
+
+export interface ProductImage {
+  publicId: string;
+  imageUrl: string;
+  displayOrder: number;
+  isPrimary: boolean;
+}
+
 export interface Status {
   stId: number;
   stCode: string;
@@ -10,34 +31,37 @@ export interface Category {
   catName: string;
   catDescription: string;
   status: Status;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ProductImage {
-  publicId: string;
-  imageUrl: string;
-  displayOrder: number;
-  isPrimary: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  productCount?: string;
 }
 
 export interface Product {
   proId: number;
   proCode: string;
   proName: string;
-  proDescription: string;
-  sareeFabricType: string | null;
-  sareeLengthMeters: number | null;
-  blouseFabricType: string | null;
-  blouseLengthMeters: number | null;
-  proColor: string;
+  proDescription?: string;
+  sareeFabricType?: string | null;
+  sareeLengthMeters?: number | null;
+  blouseFabricType?: string | null;
+  blouseLengthMeters?: number | null;
+  proColor?: string;
   proPrice: number;
-  categories: Category[];
-  status: Status;
-  images: ProductImage[];
   availableStock: number;
-  createdAt: string;
-  updatedAt: string;
+  categories: Category[];
+  images: ProductImage[];
+  status: Status;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PageableSort {
+  ascending: boolean;
+  descending: boolean;
+  direction: string;
+  ignoreCase: boolean;
+  nullHandling: string;
+  property: string;
 }
 
 export interface Pageable {
@@ -45,38 +69,26 @@ export interface Pageable {
   pageNumber: number;
   pageSize: number;
   paged: boolean;
-  sort: any[];
+  sort: PageableSort[];
   unpaged: boolean;
 }
 
 export interface ProductsResponse {
   content: Product[];
-  empty: boolean;
-  first: boolean;
-  last: boolean;
-  number: number;
-  numberOfElements: number;
-  pageable: Pageable;
-  size: number;
-  sort: any[];
   totalElements: number;
   totalPages: number;
+  number: number; // current page
+  size: number;
+  numberOfElements: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+  pageable: Pageable;
+  sort: PageableSort[];
 }
 
 export interface ApiResponse<T> {
   responseCode: string;
   responseMessage: string;
   responseData: T;
-}
-
-export interface ProductFilters {
-  page?: number;
-  size?: number;
-  sortBy?: string;
-  sortDirection?: string;
-  category?: string;
-  color?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  search?: string;
 }

@@ -23,6 +23,14 @@ export default function ProductCard({
   const categories =
     product.categories?.map((c) => c.catName).join(", ") || "Saree";
 
+  // Check if product is new (within last 7 days)
+  const isNew = () => {
+    if (!product.createdAt) return false;
+    const createdDate = new Date(product.createdAt);
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    return createdDate > sevenDaysAgo;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -54,7 +62,6 @@ export default function ProductCard({
         {!isOutOfStock && (
           <div className="absolute inset-x-0 bottom-0 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
             <div className="flex divide-x divide-white/20">
-              {/* ✅ Changed from Link to button to avoid nested <a> tags */}
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -91,8 +98,7 @@ export default function ProductCard({
               Out of Stock
             </span>
           )}
-          {new Date(product.createdAt) >
-            new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
+          {isNew() && (
             <span className="bg-gold-500 text-white text-xs px-2 py-1">
               New
             </span>
@@ -112,7 +118,7 @@ export default function ProductCard({
         </p>
         <div className="flex items-center gap-2">
           <span className="text-xl text-primary-800">
-            LKR{product.proPrice.toLocaleString()}
+            LKR {product.proPrice.toLocaleString()}
           </span>
           {product.proColor && (
             <span className="text-xs text-neutral-500">

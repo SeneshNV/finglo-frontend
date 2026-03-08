@@ -1,5 +1,4 @@
 // src/lib/api/products.ts
-import { DUMMY_PRODUCTS } from "../dummy/products";
 import apiClient from "./client";
 import {
   ApiResponse,
@@ -8,13 +7,24 @@ import {
   ProductFilters,
 } from "@/app/types/product";
 
-// ────────────────────────────────────────────────
-//  CENTRAL DUMMY MODE CONTROL (change here only)
-// ────────────────────────────────────────────────
-const USE_DUMMY_DATA = false; // ← Set to false to use real backend
-const API_DELAY_MS = 600; // realistic loading feel
-
-const delay = () => new Promise((resolve) => setTimeout(resolve, API_DELAY_MS));
+// Helper to convert frontend sort to backend sort parameters
+const mapSortToBackend = (
+  sort?: string,
+): { sortBy: string; sortDir: string } => {
+  switch (sort) {
+    case "price-low":
+      return { sortBy: "proPrice", sortDir: "asc" };
+    case "price-high":
+      return { sortBy: "proPrice", sortDir: "desc" };
+    case "popular":
+      return { sortBy: "popular", sortDir: "desc" }; // You'll need to implement popularity tracking
+    case "rating":
+      return { sortBy: "rating", sortDir: "desc" }; // You'll need to implement ratings
+    case "newest":
+    default:
+      return { sortBy: "proId", sortDir: "desc" };
+  }
+};
 
 // Helper to create API request wrapper
 const createApiRequest = <T>(data: T) => ({
@@ -30,19 +40,21 @@ export const productApi = {
   getProducts: async (
     filters: ProductFilters = {},
   ): Promise<ApiResponse<ProductsResponse>> => {
-    // REAL API - Using public endpoint
     try {
+      const { sortBy, sortDir } = mapSortToBackend(filters.sort);
+
       // Create request payload matching your backend ApiRequest structure
       const requestPayload = createApiRequest({
         page: filters.page ?? 0,
-        size: filters.size ?? 10,
-        sortBy: filters.sortBy,
-        sortDirection: filters.sortDirection,
+        size: filters.size ?? 12,
+        sortBy: sortBy,
+        sortDir: sortDir,
         categoryId: filters.category ? parseInt(filters.category) : undefined,
         minPrice: filters.minPrice,
         maxPrice: filters.maxPrice,
         color: filters.color,
         searchQuery: filters.search,
+        inStock: filters.inStock,
       });
 
       console.log(
@@ -68,16 +80,7 @@ export const productApi = {
   // ────────────────────────────────────────────────
   getProductById: async (id: number): Promise<ApiResponse<Product>> => {
     console.log("🔧 API - getProductById called with ID:", id);
-    console.log("🔧 API - USE_DUMMY_DATA =", USE_DUMMY_DATA);
 
-    if (USE_DUMMY_DATA) {
-      // ... (keep your existing dummy data code)
-      console.log("🔧 API - Using dummy data");
-      // ... dummy data logic
-    }
-
-    // REAL API - Using public endpoint
-    console.log("🔧 API - Using real API");
     try {
       const response = await apiClient.get<ApiResponse<Product>>(
         `/products/public/view-product/${id}`,
@@ -97,18 +100,17 @@ export const productApi = {
   getProductsByCategory: async (
     categoryId: number,
     page = 0,
-    size = 10,
+    size = 12,
+    sort?: string,
   ): Promise<ApiResponse<ProductsResponse>> => {
-    if (USE_DUMMY_DATA) {
-      await delay();
-      // ... dummy data logic
-    }
-
-    // REAL API
     try {
+      const { sortBy, sortDir } = mapSortToBackend(sort);
+
       const requestPayload = createApiRequest({
         page,
         size,
+        sortBy,
+        sortDir,
         categoryId,
       });
 
@@ -130,18 +132,17 @@ export const productApi = {
   searchProducts: async (
     query: string,
     page = 0,
-    size = 10,
+    size = 12,
+    sort?: string,
   ): Promise<ApiResponse<ProductsResponse>> => {
-    if (USE_DUMMY_DATA) {
-      await delay();
-      // ... dummy data logic
-    }
-
-    // REAL API
     try {
+      const { sortBy, sortDir } = mapSortToBackend(sort);
+
       const requestPayload = createApiRequest({
         page,
         size,
+        sortBy,
+        sortDir,
         searchQuery: query,
       });
 
@@ -156,39 +157,4 @@ export const productApi = {
       throw error;
     }
   },
-};
-
-// Helper function for dummy data (keep your existing dummy response structure)
-const getDummyProductsResponse = (
-  filtered: any[],
-  page: number,
-  size: number,
-) => {
-  const start = page * size;
-  const paginated = filtered.slice(start, start + size);
-
-  return {
-    responseCode: "00",
-    responseMessage: "Products retrieved successfully (dummy data)",
-    responseData: {
-      content: paginated,
-      totalElements: filtered.length,
-      totalPages: Math.ceil(filtered.length / size),
-      number: page,
-      size,
-      numberOfElements: paginated.length,
-      first: page === 0,
-      last: start + size >= filtered.length,
-      empty: paginated.length === 0,
-      pageable: {
-        offset: start,
-        pageNumber: page,
-        pageSize: size,
-        paged: true,
-        sort: { sorted: false, unsorted: true, empty: true },
-        unpaged: false,
-      },
-      sort: { sorted: false, unsorted: true, empty: true },
-    },
-  };
 };
