@@ -36,7 +36,7 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8">
 
-      {/* 2. True Masonry Format (3 Columns like your image) */}
+      {/* 2. True Masonry Format (3 Columns like image) */}
       <motion.div
         layout
         className="columns-1 sm:columns-2 lg:columns-3 gap-5 space-y-5"

@@ -43,7 +43,7 @@ export const productApi = {
     try {
       const { sortBy, sortDir } = mapSortToBackend(filters.sort);
 
-      // Create request payload matching your backend ApiRequest structure
+      // Create request payload matching backend ApiRequest structure
       const requestPayload = createApiRequest({
         page: filters.page ?? 0,
         size: filters.size ?? 12,

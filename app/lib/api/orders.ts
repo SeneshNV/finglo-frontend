@@ -68,7 +68,7 @@ export interface PaymentVerifyResponse {
   verified: boolean;
 }
 
-// Helper to create API request wrapper (matching your backend ApiRequest structure)
+// Helper to create API request wrapper (matching backend ApiRequest structure)
 const createApiRequest = <T>(data: T) => ({
   requestData: data,
   timestamp: Date.now(),

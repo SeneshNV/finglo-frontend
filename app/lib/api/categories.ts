@@ -26,7 +26,7 @@ export const getCategories = async (
     console.log("📦 Fetching categories with payload:", requestPayload);
 
     const response = await apiClient.post<CategoryResponse>(
-      "/products/public/view-categories", // Update this endpoint to match your backend
+      "/products/public/view-categories", // Update this endpoint to match backend
       requestPayload,
     );
 
@@ -50,7 +50,7 @@ export const getActiveCategories = async (
       size,
       sortBy,
       sortDir,
-      status: "ACT", // Add status filter if your backend supports it
+      status: "ACT",
     });
 
     const response = await apiClient.post<CategoryResponse>(

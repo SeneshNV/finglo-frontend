@@ -49,7 +49,7 @@ export default function Navbar() {
           {/* MOBILE: Icon Logo (Visible on small screens, hidden on LG) */}
           <div className="lg:hidden block">
             <Image
-              src="/logo/darkLogo.png" // Change to your actual icon filename
+              src="/logo/darkLogo.png" // Change to actual icon filename
               alt="Finglo Icon"
               width={125}
               height={35}
@@ -60,7 +60,7 @@ export default function Navbar() {
           {/* DESKTOP: Full Logo (Hidden on mobile, visible on LG) */}
           <div className="hidden lg:block">
             <Image
-              src="/logo/darkLogo.png" // Change to your actual full logo filename
+              src="/logo/darkLogo.png" // Change to actual full logo filename
               alt="Finglo Full Logo"
               width={140}
               height={40}
