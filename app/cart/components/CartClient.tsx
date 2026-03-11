@@ -4,14 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, ArrowLeft, AlertCircle } from "lucide-react";
-
-import { useCart } from "@/app/hooks/useCart";
 import CartItem from "./CartItem";
 import CartSummary from "./CartSummary";
 import EmptyCart from "./EmptyCart";
 import CartSkeleton from "./CartSkeleton";
 // import CartProgress from "./CartProgress";
 import CartRecommendations from "./CartRecommendations";
+import { useCart } from "@/app/contexts/CartContext";
 
 export default function CartClient() {
   const { cart, isLoading, error, refreshCart, itemCount, subtotal } =

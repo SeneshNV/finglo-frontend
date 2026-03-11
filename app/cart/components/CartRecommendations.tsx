@@ -9,7 +9,7 @@ import { Plus } from "lucide-react";
 import { productApi } from "@/app/lib/api/products";
 import { Product } from "@/app/types/product";
 import { formatPrice } from "@/app/lib/utils/format";
-import { useCart } from "@/app/hooks/useCart";
+import { useCart } from "@/app/contexts/CartContext";
 
 export default function CartRecommendations() {
   const [products, setProducts] = useState<Product[]>([]);

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ShoppingCart, Menu } from "lucide-react";
-import { useCart } from "@/app/hooks/useCart";
+import { useCart } from "@/app/contexts/CartContext";
 
 const NAV_LINKS = [
   { name: "Shop", href: "/shop/products" },

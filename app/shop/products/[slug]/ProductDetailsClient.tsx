@@ -141,16 +141,16 @@ export default function ProductDetailsClient({
 
   const handleAddToCart = async () => {
     console.log(
-      "🔴 Add to cart clicked - Product ID:",
+      " Add to cart clicked - Product ID:",
       product.proId,
       "Quantity:",
       quantity,
     );
-    console.log("🔴 Available stock:", product.availableStock);
+    console.log(" Available stock:", product.availableStock);
 
     // Check stock availability
     if (product.availableStock < quantity) {
-      console.log("🔴 Stock insufficient");
+      console.log(" Stock insufficient");
       setErrorMessage(
         `Only ${product.availableStock} items available in stock`,
       );
@@ -160,19 +160,19 @@ export default function ProductDetailsClient({
 
     setIsAddingToCart(true);
     try {
-      console.log("🔴 Calling addToCart with:", {
+      console.log(" Calling addToCart with:", {
         productId: product.proId,
         quantity,
       });
       await addToCart(product.proId, quantity);
-      console.log("🔴 addToCart completed successfully");
+      console.log(" addToCart completed successfully");
       setShowSuccessToast(true);
     } catch (error: any) {
-      console.error("🔴 Failed to add to cart:", error);
+      console.error(" Failed to add to cart:", error);
       setErrorMessage(error?.message || "Failed to add item to cart");
       setShowErrorToast(true);
     } finally {
-      console.log("🔴 Setting isAddingToCart to false");
+      console.log(" Setting isAddingToCart to false");
       setIsAddingToCart(false);
     }
   };

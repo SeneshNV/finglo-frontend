@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Trash2, Heart, Minus, Plus, AlertCircle, ShoppingBag } from "lucide-react";
 
 import { CartItemResponse } from "@/app/types/cart";
-import { useCart } from "@/app/hooks/useCart";
+import { useCart } from "@/app/contexts/CartContext";
 import { formatPrice } from "@/app/lib/utils/format";
 
 interface CartItemProps {
