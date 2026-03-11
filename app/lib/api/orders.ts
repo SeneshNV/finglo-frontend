@@ -88,10 +88,10 @@ export const orderApi = {
         requestPayload,
       );
 
-      console.log("✅ Order created:", response.data);
+      console.log("Order created:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Error creating order:", error);
+      console.error("Error creating order:", error);
       throw error;
     }
   },
@@ -112,10 +112,10 @@ export const orderApi = {
         requestPayload,
       );
 
-      console.log("✅ PayHere hash generated:", response.data);
+      console.log("PayHere hash generated:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Error getting PayHere hash:", error);
+      console.error("Error getting PayHere hash:", error);
       throw error;
     }
   },
@@ -127,10 +127,10 @@ export const orderApi = {
         `/orders/public/verify/${orderId}`,
       );
 
-      console.log("✅ Payment verified:", response.data);
+      console.log("Payment verified:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Error verifying payment:", error);
+      console.error("Error verifying payment:", error);
       throw error;
     }
   },
@@ -146,7 +146,7 @@ export const orderApi = {
 
       return response.data;
     } catch (error) {
-      console.error("❌ Error fetching order:", error);
+      console.error("Error fetching order:", error);
       throw error;
     }
   },

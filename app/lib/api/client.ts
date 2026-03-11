@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Make sure this points to gateway
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -32,7 +32,7 @@ apiClient.interceptors.response.use(
   (response) => {
     if (process.env.NODE_ENV === "development") {
       console.log(
-        `✅ ${response.config.method?.toUpperCase()} ${response.config.url}`,
+        `${response.config.method?.toUpperCase()} ${response.config.url}`,
         response.data,
       );
     }
@@ -40,15 +40,15 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      console.error("❌ API Error:", {
+      console.error("API Error:", {
         status: error.response.status,
         data: error.response.data,
         url: error.config?.url,
       });
     } else if (error.request) {
-      console.error("❌ No response from server:", error.request);
+      console.error("No response from server:", error.request);
     } else {
-      console.error("❌ Request error:", error.message);
+      console.error("Request error:", error.message);
     }
     return Promise.reject(error);
   },

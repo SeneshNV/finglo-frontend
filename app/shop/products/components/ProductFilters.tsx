@@ -81,7 +81,7 @@ export default function ProductFilters({
         );
 
         setCategories(sortedCategories);
-        console.log("✅ Categories loaded:", sortedCategories);
+        console.log("Categories loaded:", sortedCategories);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       } finally {

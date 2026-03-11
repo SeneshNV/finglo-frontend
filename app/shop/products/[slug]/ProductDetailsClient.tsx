@@ -17,11 +17,13 @@ import {
   X,
   ChevronLeft,
   ChevronRight as ChevronRightIcon,
-  Info,
+  Check,
+  AlertCircle,
 } from "lucide-react";
 
 import { Product } from "@/app/types/product";
 import PayHereCheckout from "../components/PayHereCheckout";
+import { useCart } from "@/app/hooks/useCart";
 
 export default function ProductDetailsClient({
   product,
@@ -36,7 +38,12 @@ export default function ProductDetailsClient({
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [showMobileControls, setShowMobileControls] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
+  const { addToCart, itemCount } = useCart();
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
   const images =
@@ -68,6 +75,16 @@ export default function ProductDetailsClient({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isLightboxOpen, selectedIdx]);
+
+  useEffect(() => {
+    if (showSuccessToast || showErrorToast) {
+      const timer = setTimeout(() => {
+        setShowSuccessToast(false);
+        setShowErrorToast(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessToast, showErrorToast]);
 
   // Prevent body scroll when lightbox is open
   useEffect(() => {
@@ -120,11 +137,96 @@ export default function ProductDetailsClient({
     }
   };
 
+  // In ProductDetailsClient.tsx, update the handleAddToCart function:
+
+  const handleAddToCart = async () => {
+    console.log(
+      "🔴 Add to cart clicked - Product ID:",
+      product.proId,
+      "Quantity:",
+      quantity,
+    );
+    console.log("🔴 Available stock:", product.availableStock);
+
+    // Check stock availability
+    if (product.availableStock < quantity) {
+      console.log("🔴 Stock insufficient");
+      setErrorMessage(
+        `Only ${product.availableStock} items available in stock`,
+      );
+      setShowErrorToast(true);
+      return;
+    }
+
+    setIsAddingToCart(true);
+    try {
+      console.log("🔴 Calling addToCart with:", {
+        productId: product.proId,
+        quantity,
+      });
+      await addToCart(product.proId, quantity);
+      console.log("🔴 addToCart completed successfully");
+      setShowSuccessToast(true);
+    } catch (error: any) {
+      console.error("🔴 Failed to add to cart:", error);
+      setErrorMessage(error?.message || "Failed to add item to cart");
+      setShowErrorToast(true);
+    } finally {
+      console.log("🔴 Setting isAddingToCart to false");
+      setIsAddingToCart(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#faf9f7] text-slate-900 antialiased">
+      {/* Toast Notifications */}
+      <AnimatePresence>
+        {showSuccessToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: -50, x: "-50%" }}
+            className="fixed top-20 left-1/2 z-50 bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 min-w-[300px]"
+          >
+            <div className="bg-white/20 p-1 rounded-full">
+              <Check size={18} />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold">Added to Cart!</p>
+              <p className="text-sm text-emerald-100">
+                {quantity} × {product.proName}
+              </p>
+            </div>
+            <Link
+              href="/cart"
+              className="text-sm font-medium hover:underline underline-offset-2"
+            >
+              View Cart
+            </Link>
+          </motion.div>
+        )}
+
+        {showErrorToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: -50, x: "-50%" }}
+            className="fixed top-20 left-1/2 z-50 bg-red-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 min-w-[300px]"
+          >
+            <div className="bg-white/20 p-1 rounded-full">
+              <AlertCircle size={18} />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold">Cannot Add to Cart</p>
+              <p className="text-sm text-red-100">{errorMessage}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* MOBILE CTA */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t p-4 transition-transform duration-300 lg:hidden ${
+        className={`fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t p-4 transition-transform duration-300 lg:hidden ${
           isScrolled ? "translate-y-0" : "translate-y-full"
         }`}
       >
@@ -138,8 +240,21 @@ export default function ProductDetailsClient({
             </p>
           </div>
 
-          <button className="flex-[2] bg-black text-white py-3 rounded-xl font-semibold text-xs tracking-widest active:scale-95">
-            ADD TO BAG
+          <button
+            onClick={handleAddToCart}
+            disabled={isAddingToCart || product.availableStock === 0}
+            className="flex-[2] bg-black text-white py-3 rounded-xl font-semibold text-xs tracking-widest active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isAddingToCart ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ADDING...
+              </span>
+            ) : product.availableStock === 0 ? (
+              "OUT OF STOCK"
+            ) : (
+              "ADD TO BAG"
+            )}
           </button>
         </div>
       </div>
@@ -189,6 +304,18 @@ export default function ProductDetailsClient({
 
               {/* MAIN IMAGE with swipe support */}
               <div className="relative flex-1 aspect-[3/4] bg-white rounded-xl overflow-hidden group">
+                {/* Stock Badge */}
+                {product.availableStock <= 5 && product.availableStock > 0 && (
+                  <div className="absolute top-4 left-4 z-10 bg-amber-500 text-white text-xs px-3 py-1 rounded-full">
+                    Only {product.availableStock} left
+                  </div>
+                )}
+                {product.availableStock === 0 && (
+                  <div className="absolute top-4 left-4 z-10 bg-red-500 text-white text-xs px-3 py-1 rounded-full">
+                    Out of Stock
+                  </div>
+                )}
+
                 {/* Mobile image counter */}
                 {images.length > 1 && (
                   <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 md:hidden bg-black/50 text-white px-3 py-1 rounded-full text-sm">
@@ -246,7 +373,7 @@ export default function ProductDetailsClient({
                   dragElastic={0.2}
                   onDragEnd={handleDragEnd}
                   whileDrag={{ scale: 0.98 }}
-                  style={{ touchAction: "pan-y" }} // Allow vertical scroll while preventing horizontal scroll during drag
+                  style={{ touchAction: "pan-y" }}
                 >
                   <Image
                     src={images[selectedIdx]?.imageUrl}
@@ -284,7 +411,7 @@ export default function ProductDetailsClient({
             </div>
           </div>
 
-          {/* PRODUCT INFO - rest remains the same */}
+          {/* PRODUCT INFO */}
           <div className="lg:col-span-5 space-y-6 lg:space-y-10 lg:sticky lg:top-10 h-fit">
             {/* TITLE */}
             <div className="space-y-4">
@@ -317,6 +444,22 @@ export default function ProductDetailsClient({
                   {formatPrice(product.proPrice * 1.2)}
                 </span>
               </div>
+
+              {/* Stock Status */}
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    product.availableStock > 0
+                      ? "bg-emerald-500 animate-pulse"
+                      : "bg-red-500"
+                  }`}
+                />
+                <span className="text-sm">
+                  {product.availableStock > 0
+                    ? `${product.availableStock} items in stock`
+                    : "Out of stock"}
+                </span>
+              </div>
             </div>
 
             {/* PRODUCT DETAILS */}
@@ -337,8 +480,16 @@ export default function ProductDetailsClient({
               </div>
               <div>
                 <p className="text-xs uppercase text-slate-400 mb-1">Status</p>
-                <p className="text-emerald-600 font-medium">
-                  Ready to Dispatch
+                <p
+                  className={`font-medium ${
+                    product.availableStock > 0
+                      ? "text-emerald-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {product.availableStock > 0
+                    ? "Ready to Dispatch"
+                    : "Out of Stock"}
                 </p>
               </div>
             </div>
@@ -349,7 +500,8 @@ export default function ProductDetailsClient({
                 <div className="flex items-center border rounded-xl h-12 md:h-14 px-2">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="w-8 md:w-10 flex justify-center"
+                    disabled={quantity <= 1 || isAddingToCart}
+                    className="w-8 md:w-10 flex justify-center disabled:opacity-30"
                   >
                     <Minus size={16} />
                   </button>
@@ -358,16 +510,46 @@ export default function ProductDetailsClient({
                   </span>
                   <button
                     onClick={() => setQuantity((q) => q + 1)}
-                    className="w-8 md:w-10 flex justify-center"
+                    disabled={
+                      quantity >= (product.availableStock || 10) ||
+                      isAddingToCart
+                    }
+                    className="w-8 md:w-10 flex justify-center disabled:opacity-30"
                   >
                     <Plus size={16} />
                   </button>
                 </div>
 
-                <button className="flex-1 bg-black text-white h-12 md:h-14 rounded-xl font-semibold text-xs md:text-sm tracking-[0.15em] hover:bg-neutral-800 flex items-center justify-center gap-2 md:gap-3">
-                  <ShoppingCart size={16} />
-                  ADD TO BAG
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart || product.availableStock === 0}
+                  className="flex-1 bg-black text-white h-12 md:h-14 rounded-xl font-semibold text-xs md:text-sm tracking-[0.15em] hover:bg-neutral-800 flex items-center justify-center gap-2 md:gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAddingToCart ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ADDING...
+                    </>
+                  ) : product.availableStock === 0 ? (
+                    "OUT OF STOCK"
+                  ) : (
+                    <>
+                      <ShoppingCart size={16} />
+                      ADD TO BAG
+                    </>
+                  )}
                 </button>
+              </div>
+
+              {/* Cart Summary - Shows current cart count */}
+              <div className="flex items-center justify-between text-xs text-slate-500 bg-slate-100 p-3 rounded-lg">
+                <span>Items in your cart</span>
+                <Link
+                  href="/cart"
+                  className="font-medium text-black hover:underline"
+                >
+                  {itemCount} {itemCount === 1 ? "item" : "items"}
+                </Link>
               </div>
 
               <PayHereCheckout product={product} quantity={quantity} />

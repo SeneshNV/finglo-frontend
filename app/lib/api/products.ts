@@ -70,7 +70,7 @@ export const productApi = {
       console.log("📦 Received response:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Failed to fetch products:", error);
+      console.error("Failed to fetch products:", error);
       throw error;
     }
   },
@@ -121,7 +121,7 @@ export const productApi = {
 
       return response.data;
     } catch (error) {
-      console.error("❌ Failed to fetch products by category:", error);
+      console.error("Failed to fetch products by category:", error);
       throw error;
     }
   },
@@ -153,7 +153,7 @@ export const productApi = {
 
       return response.data;
     } catch (error) {
-      console.error("❌ Failed to search products:", error);
+      console.error("Failed to search products:", error);
       throw error;
     }
   },
