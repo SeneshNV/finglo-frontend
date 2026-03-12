@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { Product } from "@/app/types/product";
-import { orderApi, OrderData } from "@/app/lib/api/orders";
+import { orderApi, TempOrderData } from "@/app/lib/api/orders";
 
 interface PayHereCheckoutProps {
   product: Product;
@@ -29,8 +29,13 @@ export default function PayHereCheckout({
   });
 
   const totalAmount = product.proPrice * quantity;
-  const shippingCost = 350; // Fixed shipping cost
+  const shippingCost = 350;
   const grandTotal = totalAmount + shippingCost;
+
+  // Generate a temporary order ID for PayHere
+  const generateTempOrderId = () => {
+    return `TEMP_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  };
 
   // Load PayHere script
   const loadPayHereScript = () => {
@@ -57,36 +62,23 @@ export default function PayHereCheckout({
   };
 
   const validateForm = () => {
-    const required = [
-      "firstName",
-      "lastName",
-      "email",
-      "phone",
-      "address",
-      "city",
-    ];
+    const required = ["firstName", "lastName", "email", "phone", "address", "city"];
     for (const field of required) {
       if (!formData[field as keyof typeof formData]) {
-        alert(
-          `Please fill in ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`,
-        );
+        alert(`Please fill in ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`);
         return false;
       }
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       alert("Please enter a valid email address");
       return false;
     }
 
-    // Phone validation (basic Sri Lanka format)
     const phoneRegex = /^(?:\+94|0)[0-9]{9}$/;
     if (!phoneRegex.test(formData.phone.replace(/\s/g, ""))) {
-      alert(
-        "Please enter a valid Sri Lankan phone number (e.g., 0712345678 or +94712345678)",
-      );
+      alert("Please enter a valid Sri Lankan phone number");
       return false;
     }
 
@@ -102,59 +94,76 @@ export default function PayHereCheckout({
       // Load PayHere script
       await loadPayHereScript();
 
-      // 1. Create order in your backend
-      const orderData: OrderData = {
+      // Generate temporary order ID
+      const tempOrderId = generateTempOrderId();
+
+      // Prepare temporary order data
+      const tempOrderData: TempOrderData = {
+        tempId: tempOrderId,
         customerName: `${formData.firstName} ${formData.lastName}`,
         customerEmail: formData.email,
         customerPhone: formData.phone,
         customerAddress: formData.address,
         customerCity: formData.city,
         customerCountry: formData.country,
-        items: [
-          {
-            productId: product.proId, // Note: using proId instead of id
-            productName: product.proName,
-            quantity: quantity,
-            unitPrice: product.proPrice,
-            totalPrice: totalAmount,
-          },
-        ],
+        items: [{
+          productId: product.proId,
+          productName: product.proName,
+          quantity: quantity,
+          unitPrice: product.proPrice,
+          totalPrice: totalAmount,
+        }],
         subtotal: totalAmount,
         shipping: shippingCost,
         total: grandTotal,
-        paymentMethod: "payhere",
       };
 
-      console.log("Creating order:", orderData);
-      const orderResponse = await orderApi.createOrder(orderData);
-      console.log("Order response:", orderResponse);
+      // Store temporary order data in backend
+      console.log("Storing temp order data:", tempOrderId);
+      await orderApi.storeTempOrderData(tempOrderId, tempOrderData);
 
-      // Handle different response structures
-      const orderId = orderResponse.responseData?.orderNumber;
+      // Also store in sessionStorage as backup
+      sessionStorage.setItem(`customer_${tempOrderId}`, JSON.stringify({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        country: formData.country,
+      }));
 
-      if (!orderId) {
-        throw new Error("Failed to create order");
-      }
+      sessionStorage.setItem(`items_${tempOrderId}`, JSON.stringify([{
+        productId: product.proId,
+        productName: product.proName,
+        quantity: quantity,
+        unitPrice: product.proPrice,
+        totalPrice: totalAmount,
+      }]));
 
-      // 2. Get hash from backend
-      console.log("Getting PayHere hash for order:", orderId);
-      const hashResponse = await orderApi.getPayHereHash(orderId, grandTotal);
-      console.log("Hash response:", hashResponse);
+      sessionStorage.setItem(`summary_${tempOrderId}`, JSON.stringify({
+        subtotal: totalAmount,
+        shipping: shippingCost,
+        total: grandTotal,
+      }));
 
+      // Get hash from backend
+      console.log("Getting PayHere hash for temp order:", tempOrderId);
+      const hashResponse = await orderApi.getPayHereHash(tempOrderId, grandTotal);
+      
       const hash = hashResponse.responseData?.hash;
-
       if (!hash) {
         throw new Error("Failed to get payment hash");
       }
 
-      // 3. Configure PayHere payment
+      // Configure PayHere payment
       const payment = {
-        sandbox: true, // Set to false in production
+        sandbox: true,
         merchant_id: process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID || "1223956",
-        return_url: `${window.location.origin}/payment/success?order_id=${orderId}`,
-        cancel_url: `${window.location.origin}/payment/cancel?order_id=${orderId}`,
-        notify_url: `${process.env.NEXT_PUBLIC_API_URL}/orders/payhere-notify`, // Backend webhook URL
-        order_id: orderId,
+        return_url: `${window.location.origin}/payment/success?order_id=${tempOrderId}`,
+        cancel_url: `${window.location.origin}/payment/cancel?order_id=${tempOrderId}`,
+        notify_url: `${process.env.NEXT_PUBLIC_API_URL}/orders/payhere-notify`,
+        order_id: tempOrderId,
         items: `${product.proName} x ${quantity}`,
         amount: grandTotal.toFixed(2),
         currency: "LKR",
@@ -168,18 +177,22 @@ export default function PayHereCheckout({
         hash: hash,
       };
 
-      console.log("Starting PayHere payment:", payment);
+      console.log("Starting PayHere payment with temp ID:", tempOrderId);
 
-      // 4. Initialize PayHere checkout
+      // Initialize PayHere checkout
       if (window.payhere) {
-        // Set up callbacks
         window.payhere.onCompleted = function onCompleted(orderId) {
-          console.log("Payment completed for order:", orderId);
+          console.log("Payment completed for temp order:", orderId);
+          // Redirect to success page
           window.location.href = `${window.location.origin}/payment/success?order_id=${orderId}`;
         };
 
         window.payhere.onDismissed = function onDismissed() {
           console.log("Payment dismissed");
+          // Clear temporary data
+          sessionStorage.removeItem(`customer_${tempOrderId}`);
+          sessionStorage.removeItem(`items_${tempOrderId}`);
+          sessionStorage.removeItem(`summary_${tempOrderId}`);
           setIsProcessing(false);
           setShowCheckoutForm(false);
         };
@@ -202,7 +215,7 @@ export default function PayHereCheckout({
     }
   };
 
-  // Rest of the component remains the same...
+  // Form JSX remains the same...
   if (showCheckoutForm) {
     return (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -303,7 +316,6 @@ export default function PayHereCheckout({
                 </div>
               </div>
 
-              {/* Order Summary */}
               <div className="border-t pt-4 mt-4">
                 <h4 className="font-medium mb-2">Order Summary</h4>
                 <div className="space-y-2 text-sm">
@@ -366,7 +378,6 @@ export default function PayHereCheckout({
   );
 }
 
-// Add TypeScript declaration for window.payhere
 declare global {
   interface Window {
     payhere: {
