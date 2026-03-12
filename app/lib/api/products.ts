@@ -55,6 +55,7 @@ export const productApi = {
         color: filters.color,
         searchQuery: filters.search,
         inStock: filters.inStock,
+        status: "ACT",
       });
 
       console.log(
@@ -112,6 +113,7 @@ export const productApi = {
         sortBy,
         sortDir,
         categoryId,
+        status: "ACT",
       });
 
       const response = await apiClient.post<ApiResponse<ProductsResponse>>(
@@ -144,6 +146,7 @@ export const productApi = {
         sortBy,
         sortDir,
         searchQuery: query,
+        status: "ACT",
       });
 
       const response = await apiClient.post<ApiResponse<ProductsResponse>>(

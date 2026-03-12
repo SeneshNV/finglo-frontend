@@ -131,7 +131,7 @@ export default function ProductFilters({
       </div>
 
       {/* Availability */}
-      <FilterSection title="Availability" defaultOpen={false}>
+      <FilterSection title="Availability" defaultOpen={true}>
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"

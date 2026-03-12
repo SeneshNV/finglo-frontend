@@ -17,8 +17,8 @@ export default function ProductSort({ value, onChange }: ProductSortProps) {
         <option value="newest">Newest First</option>
         <option value="price-low">Price: Low to High</option>
         <option value="price-high">Price: High to Low</option>
-        <option value="popular">Most Popular</option>
-        <option value="rating">Top Rated</option>
+        {/* <option value="popular">Most Popular</option>
+        <option value="rating">Top Rated</option> */}
       </select>
       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
     </div>
