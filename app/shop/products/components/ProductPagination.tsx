@@ -1,69 +1,70 @@
-'use client'
+"use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
-interface ProductPaginationProps {
-  currentPage: number
-  totalPages: number
-  onPageChange: (page: number) => void
+interface LoadMorePaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onLoadMore: () => void;
+  loading: boolean;
 }
 
-export default function ProductPagination({ 
-  currentPage, 
-  totalPages, 
-  onPageChange 
-}: ProductPaginationProps) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i)
+export default function LoadMorePagination({
+  currentPage,
+  totalPages,
+  onLoadMore,
+  loading,
+}: LoadMorePaginationProps) {
+  // Don't show if we are on the last page
+  const isLastPage = currentPage >= totalPages - 1;
 
-  const getVisiblePages = () => {
-    if (totalPages <= 5) return pages
-    
-    if (currentPage < 3) return pages.slice(0, 5)
-    if (currentPage > totalPages - 3) return pages.slice(totalPages - 5)
-    
-    return pages.slice(currentPage - 2, currentPage + 3)
+  if (isLastPage) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="w-12 h-[1px] bg-neutral-200 mb-4" />
+        <p className="text-[9px] uppercase tracking-[0.4em] text-neutral-400 font-medium">
+          End of Collection
+        </p>
+      </div>
+    );
   }
 
-  const visiblePages = getVisiblePages()
-
   return (
-    <div className="flex items-center justify-center gap-2">
-      {/* Previous Button */}
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 0}
-        className="w-10 h-10 flex items-center justify-center border border-neutral-200 bg-white 
-                 disabled:opacity-50 disabled:cursor-not-allowed
-                 hover:border-primary-300 transition-colors"
-      >
-        <ChevronLeft className="w-4 h-4" />
-      </button>
+    <div className="flex flex-col items-center justify-center gap-6 py-16">
+      {/* Editorial Progress Indicator */}
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-[10px] uppercase tracking-[0.5em] text-neutral-400">
+          Chapter {currentPage + 1} of {totalPages}
+        </p>
+      </div>
 
-      {/* Page Numbers */}
-      {visiblePages.map(page => (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+      >
         <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={`w-10 h-10 flex items-center justify-center border transition-colors
-            ${currentPage === page 
-              ? 'bg-primary-600 text-white border-primary-600' 
-              : 'bg-white border-neutral-200 hover:border-primary-300'
-            }`}
+          onClick={onLoadMore}
+          disabled={loading}
+          className="group relative inline-flex items-center justify-center overflow-hidden border border-neutral-900 px-10 md:px-16 py-3.5 md:py-4 transition-all duration-500 disabled:opacity-50"
         >
-          {page + 1}
-        </button>
-      ))}
+          {/* Text Layer */}
+          <span className="relative z-10 flex items-center gap-3 text-[10px] md:text-[11px] uppercase tracking-[0.3em] transition-colors duration-500 group-hover:text-white">
+            {loading ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Revealing...</span>
+              </>
+            ) : (
+              <span>Load More Pieces</span>
+            )}
+          </span>
 
-      {/* Next Button */}
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages - 1}
-        className="w-10 h-10 flex items-center justify-center border border-neutral-200 bg-white 
-                 disabled:opacity-50 disabled:cursor-not-allowed
-                 hover:border-primary-300 transition-colors"
-      >
-        <ChevronRight className="w-4 h-4" />
-      </button>
+          {/* Elegant Fill Animation Layer */}
+          <span className="absolute inset-0 z-0 bg-neutral-900 translate-y-full transition-transform duration-500 ease-[0.215, 0.61, 0.355, 1] group-hover:translate-y-0" />
+        </button>
+      </motion.div>
     </div>
-  )
+  );
 }

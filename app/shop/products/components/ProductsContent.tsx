@@ -7,7 +7,7 @@ import ProductFilters from "./ProductFilters";
 import ProductSort from "./ProductSort";
 import ActiveFilters from "./ActiveFilters";
 import MobileFilters from "./MobileFilters";
-import ProductPagination from "./ProductPagination";
+import LoadMorePagination from "./ProductPagination";
 import { useProducts } from "@/app/hooks/useProducts";
 import { useFilters } from "@/app/hooks/useFilters";
 import { Filter } from "lucide-react";
@@ -15,8 +15,8 @@ import { Filter } from "lucide-react";
 export default function ProductsContent() {
   const searchParams = useSearchParams();
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
 
-  // Initialize filters from URL params
   const { filters, updateFilter, clearFilters, setPage } = useFilters({
     page: Number(searchParams.get("page")) || 0,
     size: 12,
@@ -41,15 +41,36 @@ export default function ProductsContent() {
     fetchProducts,
   } = useProducts(filters);
 
-  // Fetch products when filters change
   useEffect(() => {
     fetchProducts(filters);
   }, [filters, fetchProducts]);
 
-  // Update URL when filters change
+  // --- REFINED LOGIC: FIXING THE UNDEFINED ERROR ---
+  useEffect(() => {
+    if (!products) return;
+
+    // Use ?? 0 to ensure we are comparing numbers, not undefined
+    const activePage = filters.page ?? 0;
+
+    if (activePage === 0) {
+      setAllProducts(products);
+    } else {
+      setAllProducts((prev) => {
+        const existingIds = new Set(prev.map((item) => item.proId));
+        const newUniqueProducts = products.filter(
+          (item) => !existingIds.has(item.proId),
+        );
+        return [...prev, ...newUniqueProducts];
+      });
+    }
+  }, [products, filters.page]);
+
   useEffect(() => {
     const params = new URLSearchParams();
-    if (filters.page) params.set("page", filters.page.toString());
+
+    // Safety check for URL params
+    if (filters.page !== undefined) params.set("page", filters.page.toString());
+
     if (filters.sort && filters.sort !== "newest")
       params.set("sort", filters.sort);
     if (filters.category) params.set("category", filters.category);
@@ -62,9 +83,13 @@ export default function ProductsContent() {
     window.history.replaceState({}, "", newUrl);
   }, [filters]);
 
+  const handleLoadMore = () => {
+    if (loading) return;
+    setPage(currentPage + 1);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-8">
-      {/* Desktop Filters */}
       <aside className="hidden lg:block w-80 flex-shrink-0">
         <ProductFilters
           filters={filters}
@@ -73,21 +98,18 @@ export default function ProductsContent() {
         />
       </aside>
 
-      {/* Main Content */}
       <div className="flex-1">
-        {/* Top Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-4">
-            {/* Mobile Filters Button */}
             <button
               onClick={() => setIsMobileFiltersOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-white hover:border-primary-300 transition-colors"
+              className="lg:hidden flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-white hover:border-black transition-colors"
             >
               <Filter className="w-4 h-4" />
-              <span>Filters</span>
+              <span className="text-xs uppercase tracking-widest font-bold">
+                Filters
+              </span>
             </button>
-
-            {/* Active Filters */}
             <ActiveFilters
               filters={filters}
               onRemove={updateFilter}
@@ -95,10 +117,9 @@ export default function ProductsContent() {
             />
           </div>
 
-          {/* Results Count & Sort */}
           <div className="flex items-center gap-4">
-            <span className="text-sm text-neutral-500">
-              {totalElements} Products
+            <span className="text-[11px] uppercase tracking-widest text-neutral-400 font-medium">
+              Showing {allProducts.length} of {totalElements}
             </span>
             <ProductSort
               value={filters.sort || "newest"}
@@ -107,22 +128,24 @@ export default function ProductsContent() {
           </div>
         </div>
 
-        {/* Products Grid */}
-        <ProductGrid products={products} loading={loading} />
+        {/* Fix: loading check for page 0 */}
+        <ProductGrid
+          products={allProducts}
+          loading={loading && (filters.page ?? 0) === 0}
+        />
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-12">
-            <ProductPagination
+          <div className="mt-16 mb-20">
+            <LoadMorePagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={setPage}
+              onLoadMore={handleLoadMore}
+              loading={loading && (filters.page ?? 0) > 0} // Fix: loading more check
             />
           </div>
         )}
       </div>
 
-      {/* Mobile Filters Drawer */}
       <MobileFilters
         isOpen={isMobileFiltersOpen}
         onClose={() => setIsMobileFiltersOpen(false)}
