@@ -1,11 +1,12 @@
 // src/app/hooks/useProducts.ts
+
 import { useState, useCallback } from "react";
 import { Product, ProductFilters } from "@/app/types/product";
 import { productApi } from "../lib/api/products";
 
-export function useProducts(initialFilters?: ProductFilters) {
+export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -52,4 +53,4 @@ export function useProducts(initialFilters?: ProductFilters) {
     totalElements,
     fetchProducts,
   };
-}
+};

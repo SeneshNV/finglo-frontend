@@ -1,3 +1,5 @@
+// src/app/shop/components/ActiveFilters.tsx
+
 "use client";
 
 import type { ProductFilters } from "@/app/types/product";
@@ -20,6 +22,15 @@ export default function ActiveFilters({
     value: string;
   }[] = [];
 
+  // Search filter
+  if (filters.search) {
+    activeFilters.push({
+      key: "search",
+      label: "Search",
+      value: filters.search,
+    });
+  }
+
   // Category filter
   if (filters.category) {
     activeFilters.push({
@@ -29,19 +40,28 @@ export default function ActiveFilters({
     });
   }
 
+  // Color filter
+  if (filters.color) {
+    activeFilters.push({
+      key: "color",
+      label: "Color",
+      value: filters.color,
+    });
+  }
+
   // Price filter
   if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
     let priceLabel = "";
     if (filters.minPrice !== undefined && filters.maxPrice !== undefined) {
-      priceLabel = `LKR${filters.minPrice} - LKR${filters.maxPrice}`;
+      priceLabel = `LKR ${filters.minPrice} - LKR ${filters.maxPrice}`;
     } else if (filters.minPrice !== undefined) {
-      priceLabel = `Above LKR${filters.minPrice}`;
+      priceLabel = `Above LKR ${filters.minPrice}`;
     } else if (filters.maxPrice !== undefined) {
-      priceLabel = `Below LKR${filters.maxPrice}`;
+      priceLabel = `Below LKR ${filters.maxPrice}`;
     }
 
     activeFilters.push({
-      key: "minPrice",
+      key: "minPrice", // Using minPrice as key, but we'll handle both
       label: "Price",
       value: priceLabel,
     });
@@ -58,7 +78,15 @@ export default function ActiveFilters({
       {activeFilters.map((filter) => (
         <button
           key={`${filter.key}-${filter.value}`}
-          onClick={() => onRemove(filter.key, undefined)}
+          onClick={() => {
+            if (filter.key === "minPrice") {
+              // For price filter, remove both min and max
+              onRemove("minPrice", undefined);
+              onRemove("maxPrice", undefined);
+            } else {
+              onRemove(filter.key, undefined);
+            }
+          }}
           className="inline-flex items-center gap-1 px-3 py-1 bg-primary-50 text-primary-700 
                    text-sm hover:bg-primary-100 transition-colors group"
         >

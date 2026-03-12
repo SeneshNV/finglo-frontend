@@ -1,6 +1,8 @@
+// src/app/shop/components/ProductsContent.tsx
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductGrid from "./ProductGrid";
 import ProductFilters from "./ProductFilters";
@@ -8,14 +10,18 @@ import ProductSort from "./ProductSort";
 import ActiveFilters from "./ActiveFilters";
 import MobileFilters from "./MobileFilters";
 import LoadMorePagination from "./ProductPagination";
+import SearchBar from "./SearchBar";
 import { useProducts } from "@/app/hooks/useProducts";
 import { useFilters } from "@/app/hooks/useFilters";
-import { Filter } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 
 export default function ProductsContent() {
   const searchParams = useSearchParams();
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [allProducts, setAllProducts] = useState<any[]>([]);
+
+  // Separate state for search term (doesn't affect filters UI)
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { filters, updateFilter, clearFilters, setPage } = useFilters({
     page: Number(searchParams.get("page")) || 0,
@@ -29,7 +35,7 @@ export default function ProductsContent() {
     maxPrice: searchParams.get("maxPrice")
       ? Number(searchParams.get("maxPrice"))
       : undefined,
-    search: searchParams.get("search") || undefined,
+    // Don't include search in filters
   });
 
   const {
@@ -39,11 +45,26 @@ export default function ProductsContent() {
     currentPage,
     totalElements,
     fetchProducts,
-  } = useProducts(filters);
+  } = useProducts();
 
+  // Fetch products when filters OR search term changes
   useEffect(() => {
-    fetchProducts(filters);
-  }, [filters, fetchProducts]);
+    // Combine filters with search term
+    const searchFilters = {
+      ...filters,
+      search: searchTerm || undefined,
+    };
+    fetchProducts(searchFilters);
+  }, [filters, searchTerm, fetchProducts]);
+
+  // Handle search from SearchBar
+  const handleSearch = useCallback(
+    (term: string) => {
+      setSearchTerm(term);
+      setPage(0); // Reset to first page on new search
+    },
+    [setPage],
+  );
 
   // --- REFINED LOGIC: FIXING THE UNDEFINED ERROR ---
   useEffect(() => {
@@ -69,7 +90,8 @@ export default function ProductsContent() {
     const params = new URLSearchParams();
 
     // Safety check for URL params
-    if (filters.page !== undefined) params.set("page", filters.page.toString());
+    if (filters.page !== undefined && filters.page > 0)
+      params.set("page", filters.page.toString());
 
     if (filters.sort && filters.sort !== "newest")
       params.set("sort", filters.sort);
@@ -77,7 +99,7 @@ export default function ProductsContent() {
     if (filters.color) params.set("color", filters.color);
     if (filters.minPrice) params.set("minPrice", filters.minPrice.toString());
     if (filters.maxPrice) params.set("maxPrice", filters.maxPrice.toString());
-    if (filters.search) params.set("search", filters.search);
+    // Don't add search to URL params
 
     const newUrl = `${window.location.pathname}${params.toString() ? "?" + params.toString() : ""}`;
     window.history.replaceState({}, "", newUrl);
@@ -99,6 +121,15 @@ export default function ProductsContent() {
       </aside>
 
       <div className="flex-1">
+        {/* Search Bar Section - Independent from filters */}
+        <div className="mb-8">
+          <SearchBar
+            onSearch={handleSearch}
+            placeholder="Search by product name, code, or description..."
+            initialValue={searchTerm}
+          />
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-4">
             <button
@@ -111,7 +142,7 @@ export default function ProductsContent() {
               </span>
             </button>
             <ActiveFilters
-              filters={filters}
+              filters={filters} // Only pass filters without search
               onRemove={updateFilter}
               onClear={clearFilters}
             />
@@ -119,7 +150,15 @@ export default function ProductsContent() {
 
           <div className="flex items-center gap-4">
             <span className="text-[11px] uppercase tracking-widest text-neutral-400 font-medium">
-              Showing {allProducts.length} of {totalElements}
+              {searchTerm ? (
+                <>
+                  Found {totalElements} results for "{searchTerm}"
+                </>
+              ) : (
+                <>
+                  Showing {allProducts.length} of {totalElements}
+                </>
+              )}
             </span>
             <ProductSort
               value={filters.sort || "newest"}
@@ -128,19 +167,53 @@ export default function ProductsContent() {
           </div>
         </div>
 
-        {/* Fix: loading check for page 0 */}
+        {/* No Results State */}
+        {!loading && allProducts.length === 0 && (
+          <div className="text-center py-16 px-4">
+            <div className="mb-6">
+              <Search className="w-16 h-16 mx-auto text-neutral-300" />
+            </div>
+            <h3 className="text-xl font-light text-neutral-900 mb-3">
+              No products found
+            </h3>
+            <p className="text-neutral-500 text-sm max-w-md mx-auto mb-8">
+              {searchTerm ? (
+                <>We couldn't find any products matching "{searchTerm}"</>
+              ) : (
+                <>No products match your selected filters</>
+              )}
+            </p>
+            {(searchTerm ||
+              filters.category ||
+              filters.color ||
+              filters.minPrice ||
+              filters.maxPrice) && (
+              <button
+                onClick={() => {
+                  clearFilters();
+                  setSearchTerm("");
+                }}
+                className="px-8 py-3 border border-neutral-900 text-neutral-900 text-xs uppercase tracking-widest hover:bg-neutral-900 hover:text-white transition-colors duration-300"
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Product Grid */}
         <ProductGrid
           products={allProducts}
           loading={loading && (filters.page ?? 0) === 0}
         />
 
-        {totalPages > 1 && (
+        {totalPages > 1 && allProducts.length > 0 && (
           <div className="mt-16 mb-20">
             <LoadMorePagination
               currentPage={currentPage}
               totalPages={totalPages}
               onLoadMore={handleLoadMore}
-              loading={loading && (filters.page ?? 0) > 0} // Fix: loading more check
+              loading={loading && (filters.page ?? 0) > 0}
             />
           </div>
         )}

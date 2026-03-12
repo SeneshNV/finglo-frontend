@@ -21,7 +21,6 @@ const MobileFilters: React.FC<MobileFiltersProps> = ({
   onFilterChange,
   onClear,
 }) => {
-
   // Lock body scroll
   useEffect(() => {
     if (isOpen) {
@@ -39,7 +38,6 @@ const MobileFilters: React.FC<MobileFiltersProps> = ({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -57,16 +55,13 @@ const MobileFilters: React.FC<MobileFiltersProps> = ({
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="absolute right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl flex flex-col"
           >
-
             {/* HEADER */}
             <div className="flex items-center justify-between px-5 py-4 border-b">
               <div>
                 <h2 className="text-lg font-semibold text-stone-900">
                   Filters
                 </h2>
-                <p className="text-xs text-stone-500">
-                  Refine your collection
-                </p>
+                <p className="text-xs text-stone-500">Refine your collection</p>
               </div>
 
               <button
@@ -88,10 +83,10 @@ const MobileFilters: React.FC<MobileFiltersProps> = ({
 
             {/* FOOTER ACTIONS */}
             <div className="border-t px-5 py-4 bg-white flex gap-3">
-
               <button
                 onClick={() => {
-                  onClear();
+                  onClear(); // Call the parent clear function
+                  // Don't close the modal immediately so user sees the cleared state
                 }}
                 className="flex-1 border border-neutral-300 py-3 text-sm font-medium rounded-md hover:bg-neutral-50 transition"
               >
@@ -104,9 +99,7 @@ const MobileFilters: React.FC<MobileFiltersProps> = ({
               >
                 Apply Filters
               </button>
-
             </div>
-
           </motion.div>
         </div>
       )}

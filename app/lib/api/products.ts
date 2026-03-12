@@ -53,13 +53,13 @@ export const productApi = {
         minPrice: filters.minPrice,
         maxPrice: filters.maxPrice,
         color: filters.color,
-        searchQuery: filters.search,
+        searchQuery: filters.search, // This will search across name, code, and description
         inStock: filters.inStock,
         status: "ACT",
       });
 
       console.log(
-        "📦 Sending request to public products endpoint:",
+        " Sending request to public products endpoint:",
         requestPayload,
       );
 
@@ -68,7 +68,7 @@ export const productApi = {
         requestPayload,
       );
 
-      console.log("📦 Received response:", response.data);
+      console.log(" Received response:", response.data);
       return response.data;
     } catch (error) {
       console.error("Failed to fetch products:", error);

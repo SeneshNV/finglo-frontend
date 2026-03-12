@@ -1,3 +1,5 @@
+// src/app/shop/components/ProductFilters.tsx
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -67,6 +69,14 @@ export default function ProductFilters({
     max: filters.maxPrice,
   });
 
+  // Sync local price range with filters when they change externally
+  useEffect(() => {
+    setPriceRange({
+      min: filters.minPrice,
+      max: filters.maxPrice,
+    });
+  }, [filters.minPrice, filters.maxPrice]);
+
   // Fetch real categories from backend with the correct format
   useEffect(() => {
     const fetchCategories = async () => {
@@ -107,6 +117,13 @@ export default function ProductFilters({
     onFilterChange("category", categoryId.toString());
   };
 
+  const handleLocalClear = () => {
+    // Clear local price range
+    setPriceRange({ min: undefined, max: undefined });
+    // Call the parent clear function
+    onClear();
+  };
+
   const activeFilterCount = [
     filters.category,
     filters.color,
@@ -121,7 +138,7 @@ export default function ProductFilters({
         <h2 className="font-display text-xl text-primary-900">Filters</h2>
         {activeFilterCount > 0 && (
           <button
-            onClick={onClear}
+            onClick={handleLocalClear}
             className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
           >
             <X className="w-4 h-4" />
@@ -190,20 +207,48 @@ export default function ProductFilters({
       {/* Price Range */}
       <FilterSection title="Price Range">
         <div className="space-y-3">
-          {PRICE_RANGES.map((range) => (
-            <button
-              key={range.label}
-              onClick={() => handlePriceRangeSelect(range)}
-              className={`block w-full text-left text-sm px-3 py-2 rounded transition-colors
-                ${
-                  priceRange.min === range.min && priceRange.max === range.max
-                    ? "bg-primary-50 text-primary-700"
-                    : "text-neutral-700 hover:bg-neutral-50"
-                }`}
-            >
-              {range.label}
-            </button>
-          ))}
+          {PRICE_RANGES.map((range) => {
+            const isSelected =
+              priceRange.min === range.min && priceRange.max === range.max;
+
+            return (
+              <button
+                key={range.label}
+                onClick={() => handlePriceRangeSelect(range)}
+                className={`block w-full text-left text-sm px-3 py-2 rounded transition-colors
+                  ${
+                    isSelected
+                      ? "bg-primary-50 text-primary-700"
+                      : "text-neutral-700 hover:bg-neutral-50"
+                  }`}
+              >
+                {range.label}
+              </button>
+            );
+          })}
+
+          {/* Show active price range if custom */}
+          {filters.minPrice !== undefined || filters.maxPrice !== undefined ? (
+            <div className="mt-2 pt-2 border-t border-neutral-200">
+              <div className="text-xs text-neutral-500 mb-1">Selected:</div>
+              <div className="flex items-center justify-between bg-primary-50 px-3 py-2 rounded">
+                <span className="text-sm text-primary-700">
+                  {filters.minPrice !== undefined &&
+                  filters.maxPrice !== undefined
+                    ? `LKR ${filters.minPrice} - LKR ${filters.maxPrice}`
+                    : filters.minPrice !== undefined
+                      ? `Above LKR ${filters.minPrice}`
+                      : `Below LKR ${filters.maxPrice}`}
+                </span>
+                <button
+                  onClick={() => handlePriceChange(undefined, undefined)}
+                  className="text-primary-600 hover:text-primary-800"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </FilterSection>
     </div>
