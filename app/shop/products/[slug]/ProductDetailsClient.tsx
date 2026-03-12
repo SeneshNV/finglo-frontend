@@ -47,7 +47,7 @@ export default function ProductDetailsClient({
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
   const images =
-    product.images?.sort((a, b) => (b.isPrimary ? 1 : -1)).slice(0, 4) || [];
+    product.images?.sort((a, b) => (b.isPrimary ? 1 : -1)).slice(0, 5) || [];
 
   const formatPrice = (p: number) =>
     new Intl.NumberFormat("en-IN", {
@@ -279,8 +279,7 @@ export default function ProductDetailsClient({
           {/* IMAGE GALLERY */}
           <div className="lg:col-span-7">
             <div className="flex flex-col-reverse md:flex-row gap-4">
-              {/* THUMBNAILS - Hidden on mobile, visible on desktop */}
-              <div className="flex md:flex-col gap-3 overflow-x-auto max-h-[600px]">
+              <div className="flex md:flex-col gap-3 overflow-x-auto max-h-[900px]">
                 {images.map((img, idx) => (
                   <button
                     key={idx}
