@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Make sure this points to gateway
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
