@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { Product } from "@/app/types/product";
-import { orderApi, TempOrderData } from "@/app/lib/api/orders";
+import { orderApi } from "@/app/lib/api/orders";
 
 interface PayHereCheckoutProps {
   product: Product;
@@ -32,20 +32,19 @@ export default function PayHereCheckout({
   const shippingCost = 350;
   const grandTotal = totalAmount + shippingCost;
 
-  // Generate a temporary order ID for PayHere
-  const generateTempOrderId = () => {
-    return `TEMP_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  // Generate a unique order ID
+  const generateOrderId = () => {
+    return `ORD${Date.now()}${Math.random().toString(36).substring(7).toUpperCase()}`;
   };
 
-  // Load PayHere script
   const loadPayHereScript = () => {
     return new Promise((resolve, reject) => {
-      if (document.getElementById("payhere-script")) {
+      if (window.payhere) {
         resolve(true);
         return;
       }
+
       const script = document.createElement("script");
-      script.id = "payhere-script";
       script.src = "https://www.payhere.lk/lib/payhere.js";
       script.async = true;
       script.onload = () => resolve(true);
@@ -62,10 +61,19 @@ export default function PayHereCheckout({
   };
 
   const validateForm = () => {
-    const required = ["firstName", "lastName", "email", "phone", "address", "city"];
+    const required = [
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "address",
+      "city",
+    ];
     for (const field of required) {
-      if (!formData[field as keyof typeof formData]) {
-        alert(`Please fill in ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`);
+      if (!formData[field as keyof typeof formData]?.trim()) {
+        alert(
+          `Please fill in ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`,
+        );
         return false;
       }
     }
@@ -76,9 +84,11 @@ export default function PayHereCheckout({
       return false;
     }
 
+    // Sri Lankan phone number validation
     const phoneRegex = /^(?:\+94|0)[0-9]{9}$/;
-    if (!phoneRegex.test(formData.phone.replace(/\s/g, ""))) {
-      alert("Please enter a valid Sri Lankan phone number");
+    const cleanPhone = formData.phone.replace(/\s/g, "");
+    if (!phoneRegex.test(cleanPhone)) {
+      alert("Please enter a valid Sri Lankan phone number (e.g., 0712345678)");
       return false;
     }
 
@@ -88,73 +98,50 @@ export default function PayHereCheckout({
   const processPayHerePayment = async () => {
     if (!validateForm()) return;
 
-    try {
-      setIsProcessing(true);
+    setIsProcessing(true);
 
-      // Load PayHere script
+    try {
       await loadPayHereScript();
 
-      // Generate temporary order ID
-      const tempOrderId = generateTempOrderId();
+      // Generate order ID
+      const orderId = generateOrderId();
 
-      // Prepare customer data object
-      const customerData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        city: formData.city,
-        country: formData.country,
-      };
-
-      // Prepare items data
-      const itemsData = [{
-        productId: product.proId,
-        productName: product.proName,
-        quantity: quantity,
-        unitPrice: product.proPrice,
-        totalPrice: totalAmount,
-      }];
-
-      // Prepare summary data
-      const summaryData = {
-        subtotal: totalAmount,
-        shipping: shippingCost,
-        total: grandTotal,
-      };
-
-      // Prepare temporary order data for backend
-      const tempOrderData: TempOrderData = {
-        tempId: tempOrderId,
+      // Prepare complete order data
+      const orderData = {
+        orderNumber: orderId,
         customerName: `${formData.firstName} ${formData.lastName}`,
         customerEmail: formData.email,
         customerPhone: formData.phone,
         customerAddress: formData.address,
         customerCity: formData.city,
         customerCountry: formData.country,
-        items: itemsData,
+        items: [
+          {
+            productId: product.proId,
+            productName: product.proName,
+            quantity: quantity,
+            unitPrice: product.proPrice,
+            totalPrice: totalAmount,
+          },
+        ],
         subtotal: totalAmount,
         shipping: shippingCost,
         total: grandTotal,
+        paymentMethod: "payhere",
+        paymentStatus: "PENDING",
       };
 
-      // Store ALL data in sessionStorage as backup
-      sessionStorage.setItem(`temp_order_${tempOrderId}`, JSON.stringify({
-        customer: customerData,
-        items: itemsData,
-        summary: summaryData,
-        timestamp: Date.now(),
-      }));
+      // Store COMPLETE order data in sessionStorage (not just temp data)
+      sessionStorage.setItem(
+        `pending_order_${orderId}`,
+        JSON.stringify(orderData),
+      );
 
-      // Store temporary order data in backend
-      console.log("Storing temp order data:", tempOrderId);
-      await orderApi.storeTempOrderData(tempOrderId, tempOrderData);
+      await orderApi.storeTempOrderData(orderId, orderData as any);
 
       // Get hash from backend
-      console.log("Getting PayHere hash for temp order:", tempOrderId);
-      const hashResponse = await orderApi.getPayHereHash(tempOrderId, grandTotal);
-      
+      const hashResponse = await orderApi.getPayHereHash(orderId, grandTotal);
+
       const hash = hashResponse.responseData?.hash;
       if (!hash) {
         throw new Error("Failed to get payment hash");
@@ -163,11 +150,11 @@ export default function PayHereCheckout({
       // Configure PayHere payment
       const payment = {
         sandbox: true,
-        merchant_id: process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID || "1223956",
-        return_url: `${window.location.origin}/payment/success?order_id=${tempOrderId}`,
-        cancel_url: `${window.location.origin}/payment/cancel?order_id=${tempOrderId}`,
-        notify_url: `${process.env.NEXT_PUBLIC_API_URL}/orders/payhere-notify`,
-        order_id: tempOrderId,
+        merchant_id: process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID,
+        return_url: `${window.location.origin}/payment/success?order_id=${orderId}`,
+        cancel_url: `${window.location.origin}/payment/cancel?order_id=${orderId}`,
+        "notify_url": "https://unoffendable-semihostilely-maryanna.ngrok-free.dev/api/orders/public/payhere-notify",
+        order_id: orderId,
         items: `${product.proName} x ${quantity}`,
         amount: grandTotal.toFixed(2),
         currency: "LKR",
@@ -181,35 +168,29 @@ export default function PayHereCheckout({
         hash: hash,
       };
 
-      console.log("Starting PayHere payment with temp ID:", tempOrderId);
+      console.log("Starting PayHere payment for order:", orderId);
 
-      // Initialize PayHere checkout
-      if (window.payhere) {
-        window.payhere.onCompleted = function onCompleted(orderId) {
-          console.log("Payment completed for temp order:", orderId);
-          // Redirect to success page - order will be created by webhook
-          window.location.href = `${window.location.origin}/payment/success?order_id=${orderId}`;
-        };
+      window.payhere.onCompleted = function onCompleted(orderId) {
+        console.log("Payment completed for order:", orderId);
+        window.location.href = `/payment/success?order_id=${orderId}`;
+      };
 
-        window.payhere.onDismissed = function onDismissed() {
-          console.log("Payment dismissed");
-          // Clear temporary data
-          sessionStorage.removeItem(`temp_order_${tempOrderId}`);
-          setIsProcessing(false);
-          setShowCheckoutForm(false);
-        };
-
-        window.payhere.onError = function onError(error) {
-          console.log("Payment error:", error);
-          alert("Payment failed. Please try again.");
-          setIsProcessing(false);
-        };
-
-        window.payhere.startPayment(payment);
+      window.payhere.onDismissed = function onDismissed() {
+        console.log("Payment dismissed");
+        sessionStorage.removeItem(`pending_order_${orderId}`);
+        setIsProcessing(false);
         setShowCheckoutForm(false);
-      } else {
-        throw new Error("PayHere script not loaded");
-      }
+      };
+
+      window.payhere.onError = function onError(error) {
+        console.log("Payment error:", error);
+        sessionStorage.removeItem(`pending_order_${orderId}`);
+        setIsProcessing(false);
+        alert("Payment failed. Please try again.");
+      };
+
+      window.payhere.startPayment(payment);
+      setShowCheckoutForm(false);
     } catch (error) {
       console.error("Payment processing error:", error);
       alert("Failed to process payment. Please try again.");
@@ -217,7 +198,6 @@ export default function PayHereCheckout({
     }
   };
 
-  // Form JSX remains the same...
   if (showCheckoutForm) {
     return (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -275,9 +255,6 @@ export default function PayHereCheckout({
                   required
                   placeholder="0712345678"
                 />
-                <p className="text-xs text-slate-400 mt-1">
-                  Sri Lankan mobile number
-                </p>
               </div>
 
               <div>

@@ -10,26 +10,20 @@ export default function PaymentSuccessClient() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
   const [verifying, setVerifying] = useState(true);
-  const [verified, setVerified] = useState(false);
   const [order, setOrder] = useState<OrderResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempts, setAttempts] = useState(0);
 
   useEffect(() => {
-    const checkOrderStatus = async () => {
+    const checkAndCreateOrder = async () => {
       if (!orderId) {
         setError("No order ID provided");
         setVerifying(false);
         return;
       }
 
-      // Check if we have temp data (for debugging)
-      const tempData = sessionStorage.getItem(`temp_order_${orderId}`);
-      console.log("Temp data exists:", !!tempData);
-
-      // Start checking for order
       let checkAttempts = 0;
-      const maxAttempts = 5; // 30 seconds total (2s * 5)
+      const maxAttempts = 3; // 30 seconds total (2s * 3)
       const pollInterval = 2000;
 
       const checkOrder = setInterval(async () => {
@@ -38,25 +32,23 @@ export default function PaymentSuccessClient() {
 
         try {
           console.log(
-            `Checking for order ${orderId} (attempt ${checkAttempts}/${maxAttempts})...`,
+            `Checking order ${orderId} (attempt ${checkAttempts}/${maxAttempts})...`,
           );
 
           // Try to get the order
           const response = await orderApi.getOrder(orderId);
 
           if (response?.responseData) {
-            // Order found! Webhook created it
+            // Order found!
             console.log("Order found!", response.responseData);
-            setVerified(true);
             setOrder(response.responseData);
             setVerifying(false);
 
-            // Clear temporary data
-            sessionStorage.removeItem(`temp_order_${orderId}`);
+            // Clear pending data
+            sessionStorage.removeItem(`pending_order_${orderId}`);
             clearInterval(checkOrder);
           }
         } catch (err: any) {
-          // Check if it's a 404/not found error
           const isNotFound =
             err.status === 404 ||
             (err.response?.status === 400 &&
@@ -67,35 +59,56 @@ export default function PaymentSuccessClient() {
               `Order not found yet (attempt ${checkAttempts}/${maxAttempts})...`,
             );
 
+            // If we've waited long enough and still no order, create it manually
             if (checkAttempts >= maxAttempts) {
               clearInterval(checkOrder);
 
-              // Try one last time with the fallback order creation
               try {
-                console.log(
-                  "Max attempts reached, trying fallback order creation...",
-                );
-                const created = await createFallbackOrder(orderId);
+                console.log("Max attempts reached, creating order manually...");
 
-                if (created) {
-                  setVerified(true);
-                  setOrder(created);
-                  setVerifying(false);
+                // Get pending order data from sessionStorage
+                const pendingData = sessionStorage.getItem(
+                  `pending_order_${orderId}`,
+                );
+
+                if (pendingData) {
+                  const orderData = JSON.parse(pendingData);
+
+                  // Create the order
+                  const createResponse = await orderApi.createOrder({
+                    ...orderData,
+                    paymentStatus: "COMPLETED",
+                  });
+
+                  if (createResponse?.responseData) {
+                    console.log(
+                      "Order created manually:",
+                      createResponse.responseData,
+                    );
+                    setOrder(createResponse.responseData);
+                    setVerifying(false);
+                    sessionStorage.removeItem(`pending_order_${orderId}`);
+                  } else {
+                    setError(
+                      "Order creation failed. Please contact support.",
+                    );
+                    setVerifying(false);
+                  }
                 } else {
                   setError(
-                    "Your payment was successful but we're having trouble creating your order. Please contact support with your reference number.",
+                    "No pending order data found. Please contact support with your order ID.",
                   );
                   setVerifying(false);
                 }
-              } catch (fallbackErr) {
+              } catch (createErr) {
+                console.error("Manual order creation failed:", createErr);
                 setError(
-                  "Your payment was successful but we're having trouble creating your order. Please contact support with your reference number.",
+                  "Payment successful but order creation failed. Please contact support.",
                 );
                 setVerifying(false);
               }
             }
           } else {
-            // Some other error
             console.error("Error checking order:", err);
             if (checkAttempts >= maxAttempts) {
               clearInterval(checkOrder);
@@ -109,60 +122,10 @@ export default function PaymentSuccessClient() {
       return () => clearInterval(checkOrder);
     };
 
-    const createFallbackOrder = async (
-      tempOrderId: string,
-    ): Promise<OrderResponse | null> => {
-      try {
-        // Try to get temp data from sessionStorage
-        const tempDataStr = sessionStorage.getItem(`temp_order_${tempOrderId}`);
-
-        if (!tempDataStr) {
-          console.log("No temp data found for fallback order");
-          return null;
-        }
-
-        const tempData = JSON.parse(tempDataStr);
-
-        // Prepare order data
-        const orderData = {
-          customerName: `${tempData.customer.firstName} ${tempData.customer.lastName}`,
-          customerEmail: tempData.customer.email,
-          customerPhone: tempData.customer.phone,
-          customerAddress: tempData.customer.address,
-          customerCity: tempData.customer.city,
-          customerCountry: tempData.customer.country,
-          items: tempData.items,
-          subtotal: tempData.summary.subtotal,
-          shipping: tempData.summary.shipping,
-          total: tempData.summary.total,
-          paymentMethod: "payhere",
-          paymentStatus: "COMPLETED",
-          tempOrderId: tempOrderId,
-        };
-
-        console.log("Creating fallback order with data:", orderData);
-
-        const response = await orderApi.createOrder(orderData as any);
-
-        if (response?.responseData) {
-          console.log(
-            "Fallback order created successfully:",
-            response.responseData,
-          );
-          sessionStorage.removeItem(`temp_order_${tempOrderId}`);
-          return response.responseData;
-        }
-
-        return null;
-      } catch (err) {
-        console.error("Fallback order creation failed:", err);
-        return null;
-      }
-    };
-
-    checkOrderStatus();
+    checkAndCreateOrder();
   }, [orderId]);
 
+  // Rest of your component remains the same...
   if (verifying) {
     return (
       <div className="min-h-screen bg-[#faf9f7] flex items-center justify-center p-4">
@@ -173,19 +136,19 @@ export default function PaymentSuccessClient() {
               className="animate-spin text-emerald-600 mx-auto mb-4"
             />
             <p className="text-lg font-medium text-slate-900">
-              Processing your order...
+              Confirming your payment...
             </p>
             <p className="text-sm text-slate-500 mt-2">
-              Please wait while we confirm your payment
+              Please wait while we create your order
             </p>
-            <p className="text-xs text-slate-400 mt-4">Attempt {attempts}/5</p>
+            <p className="text-xs text-slate-400 mt-4">Attempt {attempts}/3</p>
           </div>
         </div>
       </div>
     );
   }
 
-  if (verified && order) {
+  if (order) {
     return (
       <div className="min-h-screen bg-[#faf9f7] flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl max-w-md w-full p-8 text-center">
@@ -214,7 +177,7 @@ export default function PaymentSuccessClient() {
             </div>
           </div>
           <p className="text-xs text-slate-400 mb-6">
-            You will receive a confirmation email at {order.customerEmail}
+            A confirmation email will be sent to {order.customerEmail}
           </p>
           <Link
             href="/shop/products"
@@ -231,33 +194,32 @@ export default function PaymentSuccessClient() {
     <div className="min-h-screen bg-[#faf9f7] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-8 text-center">
         <XCircle size={48} className="text-red-500 mx-auto mb-4" />
-        <h1 className="text-2xl font-semibold mb-2">Order Processing Failed</h1>
+        <h1 className="text-2xl font-semibold mb-2">Order Processing</h1>
         <p className="text-slate-600 mb-2">
-          {error || "We couldn't process your order."}
+          {error || "We're processing your order."}
         </p>
-        <p className="text-sm text-slate-400 mb-4">Reference: {orderId}</p>
+        <p className="text-sm text-slate-400 mb-4">Order ID: {orderId}</p>
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-left">
           <p className="text-sm text-amber-800 font-medium mb-2">
-            Your payment was successful, but we're having trouble creating your
-            order.
+            Your payment was successful!
           </p>
           <p className="text-xs text-amber-700">
-            Please save your reference number and contact our support team.
-            We'll ensure your order is processed.
+            Please save your order ID and contact support if you don't receive a
+            confirmation email soon.
           </p>
         </div>
         <div className="space-y-3">
+          <button
+            onClick={() => window.location.reload()}
+            className="block w-full bg-black text-white px-6 py-3 rounded-xl hover:bg-neutral-800"
+          >
+            Refresh
+          </button>
           <Link
             href="/shop/products"
-            className="block bg-black text-white px-6 py-3 rounded-xl hover:bg-neutral-800"
-          >
-            Back to Shop
-          </Link>
-          <Link
-            href="/contact"
             className="block border border-black text-black px-6 py-3 rounded-xl hover:bg-slate-50"
           >
-            Contact Support
+            Back to Shop
           </Link>
         </div>
       </div>
