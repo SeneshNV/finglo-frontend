@@ -54,11 +54,10 @@ export const getActiveCategories = async (
     });
 
     const response = await apiClient.post<CategoryResponse>(
-      "/products/public/view-categories", // Same endpoint, backend should handle filtering
+      "/products/public/view-categories",
       requestPayload,
     );
 
-    // Filter active categories on frontend if backend doesn't support status filtering
     const activeCategories = response.data.responseData.content.filter(
       (category) => category.status.stCode === "ACT",
     );

@@ -1,5 +1,4 @@
 import apiClient from "./client";
-import { Product } from "@/app/types/product";
 import { ApiResponse } from "@/app/types/product";
 
 export interface OrderItem {
@@ -22,6 +21,8 @@ export interface OrderData {
   shipping: number;
   total: number;
   paymentMethod: "payhere" | "cod";
+  paymentStatus?: "PENDING" | "COMPLETED" | "FAILED";
+  tempOrderId?: string;
 }
 
 export interface OrderResponse {
@@ -61,22 +62,6 @@ export interface PayHereHashResponse {
   orderId: string;
 }
 
-export interface PaymentVerifyResponse {
-  orderId: string;
-  paymentStatus: string;
-  orderStatus: string;
-  verified: boolean;
-}
-
-// Add interfaces for temp order storage
-export interface TempOrderItem {
-  productId: number;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
-
 export interface TempOrderData {
   tempId: string;
   customerName: string;
@@ -85,13 +70,13 @@ export interface TempOrderData {
   customerAddress: string;
   customerCity: string;
   customerCountry: string;
-  items: TempOrderItem[];
+  items: OrderItem[];
   subtotal: number;
   shipping: number;
   total: number;
 }
 
-// Helper to create API request wrapper (matching backend ApiRequest structure)
+// Helper to create API request wrapper
 const createApiRequest = <T>(data: T) => ({
   requestData: data,
   timestamp: Date.now(),
@@ -99,19 +84,16 @@ const createApiRequest = <T>(data: T) => ({
 });
 
 export const orderApi = {
-  // In orders.ts, update the createOrder method to use the correct endpoint
+  // Create order (only used as fallback)
   createOrder: async (
     orderData: OrderData,
   ): Promise<ApiResponse<OrderResponse>> => {
     try {
       const requestPayload = createApiRequest(orderData);
-
-      // Use the public endpoint for order creation
       const response = await apiClient.post<ApiResponse<OrderResponse>>(
         "/orders/public",
         requestPayload,
       );
-
       console.log("Order created:", response.data);
       return response.data;
     } catch (error) {
@@ -120,19 +102,17 @@ export const orderApi = {
     }
   },
 
-  // Store temporary order data (you'll need to implement this endpoint in backend)
+  // Store temporary order data
   storeTempOrderData: async (
     tempId: string,
     tempData: TempOrderData,
   ): Promise<ApiResponse<any>> => {
     try {
       const requestPayload = createApiRequest(tempData);
-
       const response = await apiClient.post<ApiResponse<any>>(
         `/orders/public/temp/${tempId}`,
         requestPayload,
       );
-
       console.log("Temp order data stored:", response.data);
       return response.data;
     } catch (error) {
@@ -141,7 +121,7 @@ export const orderApi = {
     }
   },
 
-  // Get PayHere hash via public endpoint
+  // Get PayHere hash
   getPayHereHash: async (
     orderId: string,
     amount: number,
@@ -151,12 +131,10 @@ export const orderApi = {
         orderId,
         amount,
       });
-
       const response = await apiClient.post<ApiResponse<PayHereHashResponse>>(
         "/orders/public/payhere-hash",
         requestPayload,
       );
-
       console.log("PayHere hash generated:", response.data);
       return response.data;
     } catch (error) {
@@ -165,22 +143,7 @@ export const orderApi = {
     }
   },
 
-  // Verify payment via public endpoint
-  verifyPayment: async (orderId: string): Promise<ApiResponse<boolean>> => {
-    try {
-      const response = await apiClient.get<ApiResponse<boolean>>(
-        `/orders/public/verify/${orderId}`,
-      );
-
-      console.log("Payment verified:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Error verifying payment:", error);
-      throw error;
-    }
-  },
-
-  // Get order details via public endpoint
+  // Get order details
   getOrder: async (
     orderNumber: string,
   ): Promise<ApiResponse<OrderResponse>> => {
@@ -188,7 +151,6 @@ export const orderApi = {
       const response = await apiClient.get<ApiResponse<OrderResponse>>(
         `/orders/public/${orderNumber}`,
       );
-
       return response.data;
     } catch (error: any) {
       // Handle 400 with "08" response code (not found)
@@ -196,21 +158,17 @@ export const orderApi = {
         error.response?.status === 400 &&
         error.response?.data?.responseCode === "08"
       ) {
-        // This is a not found error - treat as 404
         const notFoundError = new Error("Order not found");
         (notFoundError as any).status = 404;
         (notFoundError as any).response = error.response;
         throw notFoundError;
       }
-
-      // Handle actual 404 if backend ever returns it
       if (error.response?.status === 404) {
         const notFoundError = new Error("Order not found");
         (notFoundError as any).status = 404;
         (notFoundError as any).response = error.response;
         throw notFoundError;
       }
-
       console.error("Error fetching order:", error);
       throw error;
     }

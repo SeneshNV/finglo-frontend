@@ -97,7 +97,34 @@ export default function PayHereCheckout({
       // Generate temporary order ID
       const tempOrderId = generateTempOrderId();
 
-      // Prepare temporary order data
+      // Prepare customer data object
+      const customerData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        country: formData.country,
+      };
+
+      // Prepare items data
+      const itemsData = [{
+        productId: product.proId,
+        productName: product.proName,
+        quantity: quantity,
+        unitPrice: product.proPrice,
+        totalPrice: totalAmount,
+      }];
+
+      // Prepare summary data
+      const summaryData = {
+        subtotal: totalAmount,
+        shipping: shippingCost,
+        total: grandTotal,
+      };
+
+      // Prepare temporary order data for backend
       const tempOrderData: TempOrderData = {
         tempId: tempOrderId,
         customerName: `${formData.firstName} ${formData.lastName}`,
@@ -106,46 +133,23 @@ export default function PayHereCheckout({
         customerAddress: formData.address,
         customerCity: formData.city,
         customerCountry: formData.country,
-        items: [{
-          productId: product.proId,
-          productName: product.proName,
-          quantity: quantity,
-          unitPrice: product.proPrice,
-          totalPrice: totalAmount,
-        }],
+        items: itemsData,
         subtotal: totalAmount,
         shipping: shippingCost,
         total: grandTotal,
       };
 
+      // Store ALL data in sessionStorage as backup
+      sessionStorage.setItem(`temp_order_${tempOrderId}`, JSON.stringify({
+        customer: customerData,
+        items: itemsData,
+        summary: summaryData,
+        timestamp: Date.now(),
+      }));
+
       // Store temporary order data in backend
       console.log("Storing temp order data:", tempOrderId);
       await orderApi.storeTempOrderData(tempOrderId, tempOrderData);
-
-      // Also store in sessionStorage as backup
-      sessionStorage.setItem(`customer_${tempOrderId}`, JSON.stringify({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        city: formData.city,
-        country: formData.country,
-      }));
-
-      sessionStorage.setItem(`items_${tempOrderId}`, JSON.stringify([{
-        productId: product.proId,
-        productName: product.proName,
-        quantity: quantity,
-        unitPrice: product.proPrice,
-        totalPrice: totalAmount,
-      }]));
-
-      sessionStorage.setItem(`summary_${tempOrderId}`, JSON.stringify({
-        subtotal: totalAmount,
-        shipping: shippingCost,
-        total: grandTotal,
-      }));
 
       // Get hash from backend
       console.log("Getting PayHere hash for temp order:", tempOrderId);
@@ -183,16 +187,14 @@ export default function PayHereCheckout({
       if (window.payhere) {
         window.payhere.onCompleted = function onCompleted(orderId) {
           console.log("Payment completed for temp order:", orderId);
-          // Redirect to success page
+          // Redirect to success page - order will be created by webhook
           window.location.href = `${window.location.origin}/payment/success?order_id=${orderId}`;
         };
 
         window.payhere.onDismissed = function onDismissed() {
           console.log("Payment dismissed");
           // Clear temporary data
-          sessionStorage.removeItem(`customer_${tempOrderId}`);
-          sessionStorage.removeItem(`items_${tempOrderId}`);
-          sessionStorage.removeItem(`summary_${tempOrderId}`);
+          sessionStorage.removeItem(`temp_order_${tempOrderId}`);
           setIsProcessing(false);
           setShowCheckoutForm(false);
         };
