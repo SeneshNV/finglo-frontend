@@ -150,7 +150,7 @@ export default function PayHereCheckout({
       // Configure PayHere payment
       const payment = {
         sandbox: true,
-        merchant_id: process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID,
+        merchant_id: "1234375",
         return_url: `${window.location.origin}/payment/success?order_id=${orderId}`,
         cancel_url: `${window.location.origin}/payment/cancel?order_id=${orderId}`,
         "notify_url": "https://unoffendable-semihostilely-maryanna.ngrok-free.dev/api/orders/public/payhere-notify",
