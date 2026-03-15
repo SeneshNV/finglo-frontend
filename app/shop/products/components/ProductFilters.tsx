@@ -1,8 +1,14 @@
+// src/app/shop/components/ProductFilters.tsx
+
 "use client";
 
-import { useState } from "react";
-import type { ProductFilters as FilterTypes } from "@/app/types/product";
+import { useState, useEffect } from "react";
+import type {
+  ProductFilters as FilterTypes,
+  Category,
+} from "@/app/types/product";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { getActiveCategories } from "@/app/lib/api/categories";
 
 interface ProductFiltersProps {
   filters: FilterTypes;
@@ -10,25 +16,6 @@ interface ProductFiltersProps {
   onClear: () => void;
   isMobile?: boolean;
 }
-
-// Dummy data for development
-const DUMMY_CATEGORIES = [
-  { id: 1, name: "Silk Sarees", count: 45 },
-  { id: 2, name: "Cotton Sarees", count: 38 },
-  { id: 3, name: "Bridal Collection", count: 22 },
-  { id: 4, name: "Party Wear", count: 31 },
-  { id: 5, name: "Daily Wear", count: 54 },
-  { id: 6, name: "Designer Sarees", count: 27 },
-];
-
-const DUMMY_FABRICS = [
-  { name: "Pure Silk", count: 42 },
-  { name: "Cotton Silk", count: 28 },
-  { name: "Banarasi", count: 19 },
-  { name: "Kanchipuram", count: 23 },
-  { name: "Chiffon", count: 31 },
-  { name: "Georgette", count: 35 },
-];
 
 const PRICE_RANGES = [
   { label: "Under LKR2,500", min: 0, max: 2500 },
@@ -75,12 +62,45 @@ export default function ProductFilters({
   onClear,
   isMobile = false,
 }: ProductFiltersProps) {
-  const checkboxSize = isMobile ? "w-5 h-5" : "w-4 h-4";
-
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState<{ min?: number; max?: number }>({
     min: filters.minPrice,
     max: filters.maxPrice,
   });
+
+  // Sync local price range with filters when they change externally
+  useEffect(() => {
+    setPriceRange({
+      min: filters.minPrice,
+      max: filters.maxPrice,
+    });
+  }, [filters.minPrice, filters.maxPrice]);
+
+  // Fetch real categories from backend with the correct format
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        // Fetch categories sorted by name
+        const response = await getActiveCategories(0, 100, "catName", "asc");
+
+        // Sort categories by name (in case backend doesn't sort)
+        const sortedCategories = response.responseData.content.sort((a, b) =>
+          a.catName.localeCompare(b.catName),
+        );
+
+        setCategories(sortedCategories);
+        console.log("Categories loaded:", sortedCategories);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handlePriceChange = (min?: number, max?: number) => {
     setPriceRange({ min, max });
@@ -92,12 +112,16 @@ export default function ProductFilters({
     handlePriceChange(range.min, range.max || undefined);
   };
 
-  const handleCategoryChange = (categoryName: string) => {
-    onFilterChange("category", categoryName);
+  const handleCategoryChange = (categoryId: number) => {
+    // Store category ID as string
+    onFilterChange("category", categoryId.toString());
   };
 
-  const handleColorChange = (color: string) => {
-    onFilterChange("color", color);
+  const handleLocalClear = () => {
+    // Clear local price range
+    setPriceRange({ min: undefined, max: undefined });
+    // Call the parent clear function
+    onClear();
   };
 
   const activeFilterCount = [
@@ -114,7 +138,7 @@ export default function ProductFilters({
         <h2 className="font-display text-xl text-primary-900">Filters</h2>
         {activeFilterCount > 0 && (
           <button
-            onClick={onClear}
+            onClick={handleLocalClear}
             className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
           >
             <X className="w-4 h-4" />
@@ -123,85 +147,109 @@ export default function ProductFilters({
         )}
       </div>
 
-      {/* Categories */}
+      {/* Availability */}
+      <FilterSection title="Availability" defaultOpen={true}>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={filters.inStock || false}
+            onChange={(e) =>
+              onFilterChange("inStock", e.target.checked || undefined)
+            }
+            className="w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500"
+          />
+          <span className="text-sm text-neutral-700">In Stock Only</span>
+        </label>
+      </FilterSection>
+
+      {/* Categories - Real data from backend */}
       <FilterSection title="Categories">
-        <div className="space-y-2">
-          {DUMMY_CATEGORIES.map((category) => (
-            <label
-              key={category.id}
-              className="flex items-center justify-between cursor-pointer group"
-            >
-              <div className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="category"
-                  value={category.name}
-                  checked={filters.category === category.name}
-                  onChange={() => handleCategoryChange(category.name)}
-                  className="w-4 h-4 text-primary-600 border-neutral-300 focus:ring-primary-500"
-                />
-                <span className="text-sm text-neutral-700 group-hover:text-primary-600">
-                  {category.name}
+        {loading ? (
+          <div className="text-sm text-neutral-500 animate-pulse">
+            Loading categories...
+          </div>
+        ) : (
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+            {categories.map((category) => (
+              <label
+                key={category.catId}
+                className="flex items-center justify-between cursor-pointer group"
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="category"
+                    value={category.catId}
+                    checked={filters.category === category.catId.toString()}
+                    onChange={() => handleCategoryChange(category.catId)}
+                    className="w-4 h-4 text-primary-600 border-neutral-300 focus:ring-primary-500"
+                  />
+                  <span className="text-sm text-neutral-700 group-hover:text-primary-600">
+                    {category.catName}
+                  </span>
+                </div>
+
+                {/* SHOW PRODUCT COUNT */}
+                <span className="text-xs text-neutral-400">
+                  ({category.productCount})
                 </span>
+              </label>
+            ))}
+            {categories.length === 0 && (
+              <div className="text-sm text-neutral-500">
+                No categories found
               </div>
-              <span className="text-xs text-neutral-400">
-                ({category.count})
-              </span>
-            </label>
-          ))}
-        </div>
+            )}
+          </div>
+        )}
       </FilterSection>
 
       {/* Price Range */}
       <FilterSection title="Price Range">
         <div className="space-y-3">
-          {PRICE_RANGES.map((range) => (
-            <button
-              key={range.label}
-              onClick={() => handlePriceRangeSelect(range)}
-              className={`block w-full text-left text-sm px-3 py-2 rounded transition-colors
-                ${
-                  priceRange.min === range.min && priceRange.max === range.max
-                    ? "bg-primary-50 text-primary-700"
-                    : "text-neutral-700 hover:bg-neutral-50"
-                }`}
-            >
-              {range.label}
-            </button>
-          ))}
-        </div>
-      </FilterSection>
+          {PRICE_RANGES.map((range) => {
+            const isSelected =
+              priceRange.min === range.min && priceRange.max === range.max;
 
-      {/* Fabric Type */}
-      <FilterSection title="Fabric">
-        <div className="space-y-2">
-          {DUMMY_FABRICS.map((fabric) => (
-            <label
-              key={fabric.name}
-              className="flex items-center justify-between cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500"
-                />
-                <span className="text-sm text-neutral-700">{fabric.name}</span>
+            return (
+              <button
+                key={range.label}
+                onClick={() => handlePriceRangeSelect(range)}
+                className={`block w-full text-left text-sm px-3 py-2 rounded transition-colors
+                  ${
+                    isSelected
+                      ? "bg-primary-50 text-primary-700"
+                      : "text-neutral-700 hover:bg-neutral-50"
+                  }`}
+              >
+                {range.label}
+              </button>
+            );
+          })}
+
+          {/* Show active price range if custom */}
+          {filters.minPrice !== undefined || filters.maxPrice !== undefined ? (
+            <div className="mt-2 pt-2 border-t border-neutral-200">
+              <div className="text-xs text-neutral-500 mb-1">Selected:</div>
+              <div className="flex items-center justify-between bg-primary-50 px-3 py-2 rounded">
+                <span className="text-sm text-primary-700">
+                  {filters.minPrice !== undefined &&
+                  filters.maxPrice !== undefined
+                    ? `LKR ${filters.minPrice} - LKR ${filters.maxPrice}`
+                    : filters.minPrice !== undefined
+                      ? `Above LKR ${filters.minPrice}`
+                      : `Below LKR ${filters.maxPrice}`}
+                </span>
+                <button
+                  onClick={() => handlePriceChange(undefined, undefined)}
+                  className="text-primary-600 hover:text-primary-800"
+                >
+                  <X size={14} />
+                </button>
               </div>
-              <span className="text-xs text-neutral-400">({fabric.count})</span>
-            </label>
-          ))}
+            </div>
+          ) : null}
         </div>
-      </FilterSection>
-
-      {/* Availability */}
-      <FilterSection title="Availability" defaultOpen={false}>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            className="w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500"
-          />
-          <span className="text-sm text-neutral-700">In Stock Only</span>
-        </label>
       </FilterSection>
     </div>
   );

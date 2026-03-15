@@ -1,65 +1,48 @@
-import { useState, useCallback, useEffect } from "react";
-import { productApi } from "@/app/lib/api/products";
-import type {
-  Product,
-  ProductsResponse,
-  ProductFilters,
-} from "@/app/types/product";
+// src/app/hooks/useProducts.ts
 
-interface UseProductsReturn {
-  products: Product[];
-  loading: boolean;
-  error: string | null;
-  totalPages: number;
-  currentPage: number;
-  totalElements: number;
-  pageSize: number;
-  fetchProducts: (filters?: ProductFilters) => Promise<void>;
-  setFilters: (filters: ProductFilters) => void;
-}
+import { useState, useCallback } from "react";
+import { Product, ProductFilters } from "@/app/types/product";
+import { productApi } from "../lib/api/products";
 
-export function useProducts(
-  initialFilters?: ProductFilters,
-): UseProductsReturn {
+export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [filters, setFilters] = useState<ProductFilters>(initialFilters || {});
 
-  const fetchProducts = useCallback(
-    async (customFilters?: ProductFilters) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const filtersToUse = customFilters || filters;
-        const response = await productApi.getProducts(filtersToUse);
+  const fetchProducts = useCallback(async (filters: ProductFilters = {}) => {
+    setLoading(true);
+    setError(null);
 
-        if (response.responseCode === "00") {
-          setProducts(response.responseData.content);
-          setTotalPages(response.responseData.totalPages);
-          setCurrentPage(response.responseData.number);
-          setTotalElements(response.responseData.totalElements);
-          setPageSize(response.responseData.size);
-        } else {
-          setError(response.responseMessage);
-        }
-      } catch (err) {
-        setError("Failed to fetch products");
-        console.error(err);
-      } finally {
-        setLoading(false);
+    try {
+      console.log("🔍 Fetching products with filters:", filters);
+
+      const response = await productApi.getProducts(filters);
+
+      console.log("🔍 API Response:", response);
+
+      if (response.responseCode === "00") {
+        setProducts(response.responseData.content);
+        setTotalPages(response.responseData.totalPages);
+        setCurrentPage(response.responseData.number);
+        setTotalElements(response.responseData.totalElements);
+      } else {
+        setError(response.responseMessage || "Failed to fetch products");
+        console.error(
+          "API returned error code:",
+          response.responseCode,
+          response.responseMessage,
+        );
       }
-    },
-    [filters],
-  );
-
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch products");
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return {
     products,
@@ -68,8 +51,6 @@ export function useProducts(
     totalPages,
     currentPage,
     totalElements,
-    pageSize,
     fetchProducts,
-    setFilters,
   };
-}
+};

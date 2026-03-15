@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ShoppingCart, Menu } from "lucide-react";
+import { useCart } from "@/app/contexts/CartContext";
 
 const NAV_LINKS = [
   { name: "Shop", href: "/shop/products" },
@@ -16,6 +17,8 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const { cart, itemCount, isLoading } = useCart();
+  const [showCartPreview, setShowCartPreview] = useState(false);
 
   return (
     <nav className="navbar bg-base-100/70 backdrop-blur-md border-b border-base-200/50 sticky top-0 z-50 px-6 md:px-10 h-20">
@@ -49,7 +52,7 @@ export default function Navbar() {
           {/* MOBILE: Icon Logo (Visible on small screens, hidden on LG) */}
           <div className="lg:hidden block">
             <Image
-              src="/logo/darkLogo.png" // Change to your actual icon filename
+              src="/logo/darkLogo.png" // Change to actual icon filename
               alt="Finglo Icon"
               width={125}
               height={35}
@@ -60,7 +63,7 @@ export default function Navbar() {
           {/* DESKTOP: Full Logo (Hidden on mobile, visible on LG) */}
           <div className="hidden lg:block">
             <Image
-              src="/logo/darkLogo.png" // Change to your actual full logo filename
+              src="/logo/darkLogo.png" // Change to actual full logo filename
               alt="Finglo Full Logo"
               width={140}
               height={40}
@@ -113,18 +116,37 @@ export default function Navbar() {
         </ul>
       </div>
 
-      {/* RIGHT SIDE: Cart */}
+      {/* RIGHT SIDE: Cart & Actions */}
       <div className="navbar-end gap-3">
+        {/* Cart Icon with Badge */}
         <Link
           href="/cart"
-          className="btn btn-ghost btn-circle hover:bg-primary/10 transition-colors relative"
+          className="relative group"
+          aria-label="Shopping cart"
         >
-          <div className="indicator">
-            <ShoppingCart className="h-5 w-5 stroke-[1.5]" />
-            <span className="badge badge-primary badge-sm indicator-item border-none text-[10px] font-bold">
-              3
-            </span>
+          <div className="relative p-2 hover:bg-slate-100 rounded-full transition-colors">
+            <ShoppingCart className="h-5 w-5 stroke-[1.5] text-slate-700 group-hover:text-amber-600 transition-colors" />
+
+            {/* Cart Item Badge with Animation */}
+            <AnimatePresence mode="wait">
+              {!isLoading && itemCount > 0 && (
+                <motion.span
+                  key={itemCount}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.5, opacity: 0 }}
+                  className="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 shadow-sm"
+                >
+                  {itemCount > 99 ? "99+" : itemCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </div>
+
+          {/* Hover Tooltip */}
+          <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            {itemCount === 0 ? "Cart is empty" : `${itemCount} items in cart`}
+          </span>
         </Link>
       </div>
     </nav>

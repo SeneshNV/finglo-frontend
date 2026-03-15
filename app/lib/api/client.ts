@@ -1,31 +1,54 @@
+// src/lib/api/client.ts
 import axios from "axios";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+// Make sure this points to gateway
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://api.finglo.lk/api";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 10000,
 });
 
-// Request interceptor
+// Add request interceptor for logging
 apiClient.interceptors.request.use(
   (config) => {
-    // You can add auth token here later
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `🚀 ${config.method?.toUpperCase()} ${config.url}`,
+        config.data,
+      );
+    }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
 
-// Response interceptor
+// Add response interceptor for logging
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `${response.config.method?.toUpperCase()} ${response.config.url}`,
+        response.data,
+      );
+    }
+    return response;
+  },
   (error) => {
-    console.error("API Error:", error);
+    if (error.response) {
+      console.error("API Error:", {
+        status: error.response.status,
+        data: error.response.data,
+        url: error.config?.url,
+      });
+    } else if (error.request) {
+      console.error("No response from server:", error.request);
+    } else {
+      console.error("Request error:", error.message);
+    }
     return Promise.reject(error);
   },
 );
