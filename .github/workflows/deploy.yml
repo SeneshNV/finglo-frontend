@@ -2,7 +2,7 @@ name: Build and Deploy finglo-frontend
 
 on:
   push:
-    branches: [UAT]
+    branches: [main]
 
 jobs:
   build-and-deploy:
