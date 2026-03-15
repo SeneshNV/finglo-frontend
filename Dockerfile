@@ -1,16 +1,18 @@
+# Stage 1: Build
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
+ENV NEXT_PUBLIC_API_URL=http://api.finglo.lk/api
 RUN npm run build
 
-FROM node:18-alpine
+# Stage 2: Run
+FROM node:18-alpine AS runner
 WORKDIR /app
-COPY --from=builder /app/.next ./.next
+ENV NODE_ENV=production
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/next.config.* ./
-RUN npm install --production
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
