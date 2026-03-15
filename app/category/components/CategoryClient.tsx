@@ -7,20 +7,37 @@ import CategoryHeader from "./CategoryHeader";
 import CategoryStats from "./CategoryStats";
 import CategoryGrid from "./CategoryGrid";
 import CategoryImageGallery from "./CategoryImageGallery";
+import { getCategories } from "@/app/lib/api/categories"; // import for client-side fallback
 
 interface CategoryClientProps {
-  initialData: CategoryResponse;
+  initialData: CategoryResponse | null; // allow null
 }
 
 const CategoryClient: React.FC<CategoryClientProps> = ({ initialData }) => {
+  const [data, setData] = useState<CategoryResponse | null>(initialData);
+  const [loading, setLoading] = useState(!initialData); // loading if no initial data
   const [filter, setFilter] = useState<"all" | "active" | "inactive">("all");
   const [filteredCategories, setFilteredCategories] = useState<Category[]>(
-    initialData.responseData.content,
+    initialData?.responseData.content ?? [], // safe fallback
   );
   const [viewMode, setViewMode] = useState<"grid" | "gallery">("grid");
 
-  // Calculate stats
-  const allCategories = initialData.responseData.content;
+  // fetch on client side if server fetch failed during build
+  useEffect(() => {
+    if (!initialData) {
+      setLoading(true);
+      getCategories()
+        .then((result) => {
+          setData(result);
+          setFilteredCategories(result.responseData.content);
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }
+  }, [initialData]);
+
+  // safe fallbacks
+  const allCategories = data?.responseData.content ?? [];
   const activeCategories = allCategories.filter(
     (c) => c.status.stCode === "ACT",
   );
@@ -28,7 +45,6 @@ const CategoryClient: React.FC<CategoryClientProps> = ({ initialData }) => {
     (c) => c.status.stCode === "INACT",
   );
 
-  // Filter categories based on selection
   useEffect(() => {
     if (filter === "active") {
       setFilteredCategories(activeCategories);
@@ -37,23 +53,31 @@ const CategoryClient: React.FC<CategoryClientProps> = ({ initialData }) => {
     } else {
       setFilteredCategories(allCategories);
     }
-  }, [filter, allCategories, activeCategories, inactiveCategories]);
+  }, [filter, data]); // depend on data, not derived arrays
 
   const handleFilterChange = (newFilter: "all" | "active" | "inactive") => {
     setFilter(newFilter);
   };
 
-  // Breadcrumb items
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     { label: "Categories", href: "/category" },
   ];
 
+  // show loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={breadcrumbItems} />
-
-      {/* Content based on view mode */}
       <div className="mt-4">
         <CategoryGrid categories={filteredCategories} />
       </div>
