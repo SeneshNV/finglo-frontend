@@ -153,7 +153,7 @@ export default function PayHereCheckout({
         merchant_id: "1234375",
         return_url: `${window.location.origin}/payment/success?order_id=${orderId}`,
         cancel_url: `${window.location.origin}/payment/cancel?order_id=${orderId}`,
-        "notify_url": "https://unoffendable-semihostilely-maryanna.ngrok-free.dev/api/orders/public/payhere-notify",
+        "notify_url": "https://api.finglo.lk/api/orders/public/payhere-notify",
         order_id: orderId,
         items: `${product.proName} x ${quantity}`,
         amount: grandTotal.toFixed(2),
