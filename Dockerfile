@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-ENV NEXT_PUBLIC_API_URL=http://api.finglo.lk/api
+ENV NEXT_PUBLIC_API_URL=https://api.finglo.lk/api
 RUN npm run build
 
 # Stage 2: Run
